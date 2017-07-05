@@ -1,6 +1,6 @@
 ![image](http://www.4dsystems.com.au/imagenes/header.png)
 # GFX4d
-====================================================================================
+================================================================================
 
 Graphics Library for the gen4-IoD by 4D Systems - Updated 05-JULY-2017
 
