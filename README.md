@@ -1,7 +1,8 @@
 ![image](http://www.4dsystems.com.au/imagenes/header.png)
 # GFX4d
-======================================================================
-Graphics Library for the gen4-IoD by 4D Systems - Updated 14-JUNE-2017
+====================================================================================
+
+Graphics Library for the gen4-IoD by 4D Systems - Updated 05-JULY-2017
 
 The ESP8266 Core is required to be installed for WiFi functionality of the gen-IoD Range
 This GFX4d library provides the graphical aspects to the gen4-IoD
@@ -18,7 +19,7 @@ Starting with 1.6.4, Arduino allows installation of third-party platform package
 
 ## Installation of this GFX4d Library
 
-Library folder should be placed in the C:\Users\(User name)\My Documents\Arduino\Libraries\ folder, or equivalent. (restart the IDE if already open).
+Library folder should be placed in the ```C:\Users\(User name)\My Documents\Arduino\Libraries\``` folder, or equivalent. (restart the IDE if already open).
 
 For more information on the installation, please refer to [Installing Additional Arduino Libraries] (http://arduino.cc/en/Guide/Libraries)
 
