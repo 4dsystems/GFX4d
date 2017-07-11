@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems _4Dos  Pre-release version                                   *
 *                                                                          *
-*  Date:        28 March 2017                                              *
+*  Date:        11 July 2017                                               *
 *                                                                          *
 *  Description: An operating system and Basic Interpreter                  *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -811,6 +811,8 @@ case 1: // PINMODE
   noerror = true;
   field[1].trim();
   field[1].toUpperCase();
+  field[3].trim();
+  field[3].toUpperCase();
   byte pinm = (byte)getsum(1);
   pmode[pinm] = field[fieldnum + 1];
   if(pmode[pinm] == "INPUT"){
@@ -831,8 +833,10 @@ case 2: // DIGITALWRITE
   noerror = true;
   field[1].trim();
   field[1].toUpperCase();
+  field[3].trim();
+  field[3].toUpperCase();
   byte pinm = (byte)getsum(1);
-  pins = getsum(fieldnum + 1);;
+  pins = field[fieldnum + 1];;
   if(pins == "HIGH"){
   digitalWrite(pinm, HIGH);  
   }

@@ -10,7 +10,7 @@ GFX4d gfx = GFX4d();
 
 uint16_t tx, lastTx;
 uint16_t ty, lastTy;
-bool TOUCHED;
+int TOUCHED;
 bool firstTouch = true;
 
 void setup()
@@ -37,7 +37,7 @@ void loop()
   TOUCHED = gfx.touch_GetPen();
   
   // If the screen gets touched
-  if (TOUCHED)
+  if (TOUCHED == TOUCH_PRESSED)
   {
     // First touch of the screen, draw a pixel where it was touched
     if (firstTouch)
@@ -56,13 +56,12 @@ void loop()
   }
 
   // If the screen touch is released after previously touching it, draw a circle to mark the release point
-  if (!TOUCHED && !firstTouch)
+  if (TOUCHED == NOTOUCH || TOUCHED == TOUCH_RELEASED)
   {
     gfx.CircleFilled(tx, ty, 3, RED);
     firstTouch = true;
   }
 
-  delay(20);
+  //delay(20);
   yield(); // Required for ESP
 }
-

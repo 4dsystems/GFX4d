@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems GFX4d Library                                                *
 *                                                                          *
-*  Date:        14 December 2016                                           *
+*  Date:        11 July 2016                                               *
 *                                                                          *
 *  Description: Provides Graphics, Touch Control and SD Card functions     *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -703,7 +703,7 @@ boolean draw, uint32_t bgindex),
            PrintImageWifi(String Address, uint16_t port, String hfile),
            PrintImageWifi(String WebAddr),
            ImageWifi(boolean local, String Address, uint16_t port, String hfile),
-           touch_Update(),
+           //touch_Update(),
            imageTouchEnable(uint8_t gcinum, boolean en),
            TextSize(uint8_t s),
            TextColor(uint16_t c),
@@ -783,6 +783,7 @@ boolean draw, uint32_t bgindex),
   String GetCommand();
   boolean CheckSD(void);
   boolean CheckDL(void);
+  boolean touch_Update(void);
   void     Scroll(uint16_t VSP);
   void     setScrollArea(uint16_t TFA, uint16_t BFA);  
   uint8_t  getValfromString(String strval, uint8_t indx);
@@ -848,6 +849,8 @@ protected:
     txfcol[600],
     butdelay;
   uint8_t
+    lastpen,
+    prevpen,
     twxpos,
     twypos,
     pencount,
@@ -858,6 +861,7 @@ protected:
     twcl,
     bstat[128],
     txtbuf[600],
+    tchbuf[15],
     textsize,
     textsizeht,
     rotation,
@@ -883,6 +887,8 @@ protected:
   String
     cmdtxt,
     twtext;
+  long
+    touchTime;
 };
 
 #endif

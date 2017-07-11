@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems GFX4d Library                                                *
 *                                                                          *
-*  Date:        14 December 2016                                           *
+*  Date:        11 July 2016                                               *
 *                                                                          *
 *  Description: Provides Graphics, Touch Control and SD Card functions     *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -2519,17 +2519,22 @@ void GFX4d::touch_Set(uint8_t mode) {
   spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
 }
 
-void GFX4d::touch_Update() {
+boolean GFX4d::touch_Update() {
+  if(millis() >= touchTime && (millis() - touchTime) < 18) return false;
   gciobjtouched = 255;
+  boolean tsskip = false;
   uint8_t dattouch[5];
-  uint8_t pen;
+  uint8_t pen = 0;
+  int sum = 0;
   uint16_t tx;
   uint16_t ty;
   uint16_t TestNoNewData = 0;  
-  boolean NewData = false;
-  spiSettings = SPISettings(5000000, MSBFIRST, SPI_MODE0);
+  boolean NewData = true;
+  spiSettings = SPISettings(6900000, MSBFIRST, SPI_MODE0);
   SPI.beginTransaction(spiSettings);
+  delayMicroseconds(50);
   digitalWrite(_tcs, LOW);
+  delayMicroseconds(50);
   for(int s = 0; s < 5; s++){
   dattouch[s] = SPI.transfer(0x00);
   TestNoNewData = TestNoNewData + dattouch[s];
@@ -2537,41 +2542,44 @@ void GFX4d::touch_Update() {
   }
   SPI.endTransaction();
   digitalWrite(_tcs, HIGH);
-  if(TestNoNewData == 0x181){
+  for(int n = 0; n < 13; n ++){
+  tchbuf[n] = tchbuf[n + 1];
+  sum = sum + tchbuf[n];
+  }
+  tchbuf[13] = dattouch[0];
+  sum = sum + tchbuf[13];
+  if(sum == 1078 && lastpen == 129) dattouch[0] = 128;
+  pen = dattouch[0] & 0x81;
+  if(gPEN == TOUCH_RELEASED){
+  pen = 128;
+  dattouch[0] = 0x80;
+  }
+  if(dattouch[0] == 77){
   spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
   NewData = false;
   if(butchnge){
   gPEN = oldgPEN;
-  } else {
-  gPEN = 0;
   }
   gTX = oldgTX;
   gTY = oldgTY;
   } else {
-  NewData = true;
   gTX = (dattouch[2] << 7) + (dattouch[1] & 0x7F);
   gTY = (dattouch[4] << 7) + (dattouch[3] & 0x7F); 
   int tstgPEN = dattouch[0];
-  if(tstgPEN == 129){
-  if(butchnge){
+  if(dattouch[0] > 129 || dattouch[0] < 128) pen = 128; 
+  if(pen == 129){
   gPEN = TOUCH_PRESSED;
-  } else {
-  if(pdfix < 1){
-  gPEN = TOUCH_PRESSED;
-  } else {
+  tsskip = true;
+  lastpen = 129;
+  }
+  if(lastpen == 129 && pen != 129 && tsskip == false){
   gPEN = TOUCH_RELEASED;
+  tsskip = true;
+  lastpen = 128;
   }
-  }
-  }
-  if(tstgPEN == 128){
-  gPEN = TOUCH_RELEASED;
-  pdfix = 4;
-  }
-  if(tstgPEN == 0){
+  if((pen == 128 || pen == 1) && tsskip == false){
   gPEN = NOTOUCH;
-  }
-  if(pdfix > 0){
-  pdfix --;
+  lastpen = 128;
   }
   switch (rotation) {
   case 2:
@@ -2598,7 +2606,7 @@ void GFX4d::touch_Update() {
   }
   spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
   gciobjtouched = 255;
-  if(gciobjnum > 0 && gPEN == TOUCH_PRESSED){
+  if(gciobjnum > 0 && gPEN == TOUCH_PRESSED && NewData){
   int ttx;
   int tty;
   int ttw;
@@ -2619,6 +2627,9 @@ void GFX4d::touch_Update() {
   oldgPEN = gPEN;
   oldgTX = gTX;
   oldgTY = gTY;
+  
+  touchTime = millis();
+  return NewData;
 }
 
 void GFX4d::imageTouchEnable(uint8_t gcinum, boolean en){
@@ -2638,7 +2649,14 @@ uint16_t GFX4d::touch_GetY(){
 }
 
 uint8_t GFX4d::touch_GetPen(){
+  //if(prevpen == TOUCH_PRESSED && gPEN == NOTOUCH) gPEN = TOUCH_RELEASED;
+  //prevpen = gPEN;
+  //if(gPEN == TOUCH_RELEASED){
+  //gPEN = NOTOUCH;
+  //return TOUCH_RELEASED;
+  //} else {
   return gPEN;
+  //}
 }
 
 
