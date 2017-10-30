@@ -212,6 +212,8 @@ GFX4d::GFX4d(){
     nl        = false;
     ssSpeed   = 5;
     twcolnum  = 13;
+    tchen     = true;
+    
 }
 
 SPISettings spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
@@ -697,7 +699,7 @@ void GFX4d::PrintImage(uint8_t ui){
 }
 
 void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, int16_t uih, uint16_t frame, int16_t bar){
-  if(bar != 0){
+    if(bar != 0){
   uix = uix + bar;
   }
   if(uix >= width || uiy >= height) return;
@@ -736,7 +738,15 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
   uint16_t cpos;
   uint32_t isize = uiw * uih;
   if((isize % 2) == 0) even = true;
-  uint32_t pos = (isize * frame) * 2;
+  userImag.seek(Index + 4);
+  int cdv;
+  uint32_t pos;
+  cdv = userImag.read();
+  if(cdv == 8){
+  pos = (isize * frame);
+  } else {
+  pos = (isize * frame) * 2;
+  }
   if(uimage == false){
   userImag.seek(Index + 8 + pos);
   } else {
@@ -751,8 +761,14 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
   if(off == false){
   uint32_t cbuff[500];
   for(uint32_t idraw = 0; idraw < ichunk; idraw ++){
-  uint32_t tempc =userImag.read() << 24; tempc = tempc + (userImag.read() << 16);
+  uint32_t tempc;
+  if(cdv == 8){
+  tempc = RGB3322565[userImag.read()] << 16;
+  tempc = tempc + RGB3322565[userImag.read()]; 
+  } else {
+  tempc =userImag.read() << 24; tempc = tempc + (userImag.read() << 16);
   tempc = tempc + (userImag.read() << 8); tempc = tempc + userImag.read() ;
+  }
   cbuff[cpos] = tempc;
   cpos++;
   if(cpos == 500){
@@ -764,13 +780,23 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
   WrGRAMs(cbuff, cpos);  
   }
   if(even == false){
+  if(cdv == 8){
+  uint16_t tempco = RGB3322565[userImag.read()];
+  WrGRAM16(tempco);
+  } else {
   uint16_t tempco = (userImag.read() << 8); tempco = tempco + userImag.read() ;
   WrGRAM16(tempco);
+  }
   }
   } else {
   uint16_t cbuff[500];
   for(uint32_t idraw = 0; idraw < isize; idraw ++){
-  uint16_t tempc = (userImag.read() << 8); tempc = tempc + userImag.read() ;
+  uint16_t tempc;
+  if(cdv == 8){
+  tempc = RGB3322565[userImag.read()];
+  } else {
+  tempc = (userImag.read() << 8); tempc = tempc + userImag.read() ;
+  }
   if(urow >= cuix && urow <= (xl)  && ucol >= cuiy && ucol <=(yl)){
   cbuff[cpos] = tempc;
   cpos++;
@@ -863,7 +889,7 @@ void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digit
 }
 
 void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks){
-  LedDigitsDisplaySigned(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff ,0x7fff);
+  LedDigitsDisplay(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff ,0x7fff);
 }
 
 void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty){
@@ -912,7 +938,7 @@ void GFX4d::UserImages(uint8_t uisnb, int16_t framenb){
   tuiw = tuiw + gciobj[gciapos + 9];
   tuih = gciobj[gciapos + 10] << 8;
   tuih = tuih + gciobj[gciapos + 11];
-  if(framenb > (gciobjframes[uisnb] -1)){
+  if(framenb > (gciobjframes[uisnb] -1) || framenb < 0){
   outofrange(tuix, tuiy, tuiw, tuih);
   } else {
   DrawWidget(tuiIndex, tuix, tuiy, tuiw, tuih, framenb, 0);
@@ -938,8 +964,8 @@ void GFX4d::UserImages(uint8_t uis, int16_t frame, int offset, int16_t altx, int
   tuiw = tuiw + gciobj[gciapos + 9];
   tuih = gciobj[gciapos + 10] << 8;
   tuih = tuih + gciobj[gciapos + 11];
-  if(frame > (gciobjframes[uis]- 1)){
-  outofrange(tuix, tuiy, tuiw, tuih);
+  if(frame > (gciobjframes[uis]- 1) || frame < 0){
+  outofrange(altx, alty, tuiw, tuih);
   } else {
   DrawWidget(tuiIndex, altx, alty, tuiw, tuih, frame, offset);
   }
@@ -987,7 +1013,7 @@ void GFX4d::UserImages(uint8_t uisnb, int16_t framenb, int16_t newx, int16_t new
   tuiw = tuiw + gciobj[gciapos + 9];
   tuih = gciobj[gciapos + 10] << 8;
   tuih = tuih + gciobj[gciapos + 11];
-  if(framenb > (gciobjframes[uisnb] -1)){
+  if(framenb > (gciobjframes[uisnb] -1) || framenb < 0){
   outofrange(tuix, tuiy, tuiw, tuih);
   } else {
   DrawWidget(tuiIndex, tuix, tuiy, tuiw, tuih, framenb, 0);
@@ -1017,7 +1043,7 @@ void GFX4d::UserImages(uint8_t uis, int16_t frame, int offset){
   tuiw = tuiw + gciobj[gciapos + 9];
   tuih = gciobj[gciapos + 10] << 8;
   tuih = tuih + gciobj[gciapos + 11];
-  if(frame > (gciobjframes[uis]- 1)){
+  if(frame > (gciobjframes[uis]- 1) || frame < 0){
   outofrange(tuix, tuiy, tuiw, tuih);
   } else {
   DrawWidget(tuiIndex, tuix, tuiy, tuiw, tuih, frame, offset);
@@ -1210,6 +1236,8 @@ void GFX4d::Open4dGFX(String file4d){
   while(userDat.available() >0) {
   c = userDat.read();
   strpos = strpos + 1;
+  //Peters Mod
+  //if(c != char(10)){
   if(c != char(13) && c != char(10)){
   if(c == char(34)){
   gotchar = gotchar + 1;
@@ -1220,6 +1248,8 @@ void GFX4d::Open4dGFX(String file4d){
   }
   inputString = inputString + char(c);
   }
+  //Peters Mod
+  //if(c == char(10)){ 
   if(c == char(13)){ 
   strpos = 0;
   String tempis = inputString;
@@ -2487,6 +2517,7 @@ void GFX4d::touch_Set(uint8_t mode) {
   spiSettings = SPISettings(800000, MSBFIRST, SPI_MODE0);
   SPI.beginTransaction(spiSettings);
   if(mode == TOUCH_DISABLE){
+  tchen = false;
   digitalWrite(_tcs, LOW);
   delayMicroseconds(50);
   SPI.write(0x55);
@@ -2502,6 +2533,7 @@ void GFX4d::touch_Set(uint8_t mode) {
   digitalWrite(_tcs, HIGH);
   }
   if(mode == TOUCH_ENABLE){
+  tchen = true;
   digitalWrite(_tcs, LOW);
   SPI.write(0x55);
   delayMicroseconds(50);
@@ -2521,6 +2553,7 @@ void GFX4d::touch_Set(uint8_t mode) {
 
 boolean GFX4d::touch_Update() {
   if(millis() >= touchTime && (millis() - touchTime) < 18) return false;
+  if(tchen == false) return false;
   gciobjtouched = 255;
   boolean tsskip = false;
   uint8_t dattouch[5];
@@ -2836,7 +2869,7 @@ void GFX4d::UserImageDR(uint8_t ui, uint16_t uxpos, uint16_t uypos, uint16_t uwi
 }
 
 void GFX4d::UserImagesDR(uint8_t uino, int frames, uint16_t uxpos, uint16_t uypos, uint16_t uwidth, uint16_t uheight){
-  if(uxpos >= width || uypos >= height || uxpos < 0 || uypos < 0) return;
+ if(uxpos >= width || uypos >= height || uxpos < 0 || uypos < 0) return;
   if((uxpos + uwidth - 1) < 0 || (uypos + uheight - 1) < 0) return;
   if((uxpos + uwidth - 1) > width || (uypos + uheight - 1) > height) return;
   uint32_t bgoff;
@@ -2848,10 +2881,13 @@ void GFX4d::UserImagesDR(uint8_t uino, int frames, uint16_t uxpos, uint16_t uypo
   uint16_t tuiy;
   uint16_t tuiw;
   uint16_t tuih;
+  uint8_t cdv;
   tuiIndex = (gciobj[gciapos] << 24);
   tuiIndex = tuiIndex + (gciobj[gciapos + 1] << 16);
   tuiIndex = tuiIndex + (gciobj[gciapos + 2] << 8);
   tuiIndex = tuiIndex + gciobj[gciapos + 3];
+  userImag.seek(tuiIndex + 4);
+  cdv = userImag.read();
   tuix = gciobj[gciapos + 4] << 8;
   tuix = tuix + gciobj[gciapos + 5];
   tuiy = gciobj[gciapos + 6] << 8;
@@ -2885,26 +2921,48 @@ void GFX4d::UserImagesDR(uint8_t uino, int frames, uint16_t uxpos, uint16_t uypo
   uint16_t bc;
   uint32_t isize = tuiw * tuih;
   uint16_t isize2 = uwidth * uheight;
-  uint32_t pos = (isize * frames) * 2;
-  uint32_t uoff = (((uypos * tuiw) + uxpos) * 2);
+  uint32_t pos;
+  uint32_t uoff;
+  if(cdv == 8){
+  pos = (isize * frames);
+  uoff = ((uypos * tuiw) + uxpos);
+  } else {
+  pos = (isize * frames) * 2;
+  uoff = (((uypos * tuiw) + uxpos) * 2);
+  }
   bgoff = tuiIndex + 8 + pos + uoff + 0;
   userImag.seek(bgoff);
   uint32_t ichunk = isize2 / 2;
   uint32_t cbuff[500];
   uint32_t tempc;
   cpos = 0;
+  if(frames > (gciobjframes[uino]- 1) || frames < 0){
+  outofrange(tuix + uxpos, tuiy + uypos, uwidth, uheight);
+  ScrollEnable(setemp);
+  return;
+  }
   setGRAM(tuix + uxpos, tuiy + uypos, tuix + uxpos + uwidth  -1, tuiy + uypos + uheight -1);
   for(uint32_t idraw = 0; idraw < ichunk; idraw ++){
+  if(cdv == 8){
+  tempc = RGB3322565[userImag.read()] << 16;
+  tempc = tempc + RGB3322565[userImag.read()]; 
+  } else {
   tempc = userImag.read() << 24; tempc = tempc + (userImag.read() << 16);
   tempc = tempc + (userImag.read() << 8); tempc = tempc + userImag.read() ;
+  }
   cbuff[cpos] = tempc;
   cpos++;
   left++;
   left++;
   if(left > (uwidth - 1)){
   left = 0;
+  if(cdv == 8){
+  bgoff = bgoff + ((tuiw));
+  userImag.seek(bgoff + (left));
+  } else {
   bgoff = bgoff + ((tuiw) * 2);
   userImag.seek(bgoff + (left * 2));
+  }
   }
   if(cpos == 500){
   WrGRAMs(cbuff, cpos);
@@ -3168,4 +3226,12 @@ void GFX4d::HLS2RGB(uint8_t H, uint8_t L, uint8_t S){
   GFX4d_GREEN = hue_RGB(H, M1, M2) ;
   GFX4d_BLUE = hue_RGB(H-HLSMAXd3, M1, M2) ;
   }
+}
+
+uint8_t GFX4d::getNumberofObjects(void){
+  return gciobjnum;
+}
+
+void GFX4d::Close4dGFX(){
+  userImag.close();
 }
