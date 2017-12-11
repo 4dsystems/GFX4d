@@ -276,6 +276,12 @@ void GFX4d::begin(void) {
   Orientation(0);
 }
 
+void GFX4d::Contrast(int ctrst){
+  if(ctrst < 1) BacklightOn(false);
+  if(ctrst > 14) BacklightOn(true);
+  if(ctrst > 0 && ctrst < 15) analogWrite(0, ctrst * 68);
+}
+
 void GFX4d::setScrollArea(uint16_t tfa, uint16_t bfa) {
   SetCommand(GFX4d_VSCRDEF); SetData(tfa >> 8); SetData(tfa);
                              SetData((320 - tfa - bfa) >> 8); SetData(320 - tfa - bfa);
@@ -1846,7 +1852,7 @@ void GFX4d::drawChar1(int16_t x, int16_t y, unsigned char c, uint16_t color, uin
   return;
   }
   }
-  for (int8_t i = 0; i < (5); i++ ) {
+  for (int8_t i = 0; i < 6; i++ ) {
   uint8_t tcol;
   if (i == (fsw)){ 
   tcol = 0x0;
@@ -1854,6 +1860,7 @@ void GFX4d::drawChar1(int16_t x, int16_t y, unsigned char c, uint16_t color, uin
   tcol = font1[(c * 5) + i];
   }
   for (int8_t j = 0; j < 8; j++) {
+  if (i == 5) tcol = 0;
   if (tcol & 0x1) {
   if (sizew == 1 && sizeht == 1){
   if(y + j > 319 && (rotation == 3 || rotation == 2)){
