@@ -2,7 +2,7 @@
 # GFX4d
 ================================================================================
 
-Graphics Library for the gen4-IoD by 4D Systems - Updated 05-JULY-2017
+Graphics Library for the gen4-IoD by 4D Systems
 
 The ESP8266 Core is required to be installed for WiFi functionality of the gen-IoD Range
 This GFX4d library provides the graphical aspects to the gen4-IoD
