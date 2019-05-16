@@ -175,96 +175,108 @@
 *                                                                          *
 ***************************************************************************/
 
-#ifndef _GFX4D_H
-#define _GFX4D_H
+#ifndef _GFX4d_H
+#define _GFX4d_H
+//#define USE_FS
 #include "Arduino.h"
 #include "Print.h"
-//#include <pgmspace.h>
-//#include <SdFat.h>
+#ifndef USE_FS
+//#include <SDFS.h>
 #include <SD.h>
+#else
+#define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
+#include <FS.h> //spiff file system
+#endif
 
+#define MAX_WIDGETS	       400
 
 #ifdef USING_WS4_GCIOBJECTS
-#define GCIOBJSEN
+#define  GCIOBJSEN
 #endif
-#define GFX4d_TFTWIDTH  240
-#define GFX4d_TFTHEIGHT 320
+#define  GFX4d_TFTWIDTH    240
+#define  GFX4d_TFTHEIGHT   320
 
-#define GFX4d_NOP         0x00
-#define GFX4d_SWRESET     0x01
-#define GFX4d_RDDID       0x04
-#define GFX4d_RDDST       0x09
+#define  GFX4d_NOP         0x00
+#define  GFX4d_SWRESET     0x01
+#define  GFX4d_RDDID       0x04
+#define  GFX4d_RDDST       0x09
 
-#define GFX4d_SLPIN       0x10
-#define GFX4d_SLPOUT      0x11
-#define GFX4d_PTLON       0x12
-#define GFX4d_NORON       0x13
+#define  GFX4d_SLPIN       0x10
+#define  GFX4d_SLPOUT      0x11
+#define  GFX4d_PTLON       0x12
+#define  GFX4d_NORON       0x13
 
-#define GFX4d_RDMODE      0x0A
-#define GFX4d_RDMADCTL    0x0B
-#define GFX4d_RDPIXFMT    0x0C
-#define GFX4d_RDIMGFMT    0x0D
-#define GFX4d_RDSELFDIAG  0x0F
+#define  GFX4d_RDMODE      0x0A
+#define  GFX4d_RDMADCTL    0x0B
+#define  GFX4d_RDPIXFMT    0x0C
+#define  GFX4d_RDIMGFMT    0x0D
+#define  GFX4d_RDSELFDIAG  0x0F
 
-#define GFX4d_INVOFF      0x20
-#define GFX4d_INVON       0x21
-#define GFX4d_GAMMASET    0x26
-#define GFX4d_DISPOFF     0x28
-#define GFX4d_DISPON      0x29
+#define  GFX4d_INVOFF      0x20
+#define  GFX4d_INVON       0x21
+#define  GFX4d_GAMMASET    0x26
+#define  GFX4d_DISPOFF     0x28
+#define  GFX4d_DISPON      0x29
 
-#define GFX4d_CASET       0x2A
-#define GFX4d_PASET       0x2B
-#define GFX4d_RAMWR       0x2C
-#define GFX4d_RAMRD       0x2E
+#define  GFX4d_CASET       0x2A
+#define  GFX4d_PASET       0x2B
+#define  GFX4d_RAMWR       0x2C
+#define  GFX4d_RAMRD       0x2E
 
-#define GFX4d_PTLAR       0x30
-#define GFX4d_VSCRDEF     0x33
-#define GFX4d_MADCTL      0x36
-#define GFX4d_VSCRSADD    0x37
-#define GFX4d_PIXFMT      0x3A
+#define  GFX4d_PTLAR       0x30
+#define  GFX4d_VSCRDEF     0x33
+#define  GFX4d_MADCTL      0x36
+#define  GFX4d_VSCRSADD    0x37
+#define  GFX4d_PIXFMT      0x3A
 
-#define GFX4d_FRMCTR1     0xB1
-#define GFX4d_FRMCTR2     0xB2
-#define GFX4d_FRMCTR3     0xB3
-#define GFX4d_INVCTR      0xB4
-#define GFX4d_DFUNCTR     0xB6
+#define  GFX4d_FRMCTR1     0xB1
+#define  GFX4d_FRMCTR2     0xB2
+#define  GFX4d_FRMCTR3     0xB3
+#define  GFX4d_INVCTR      0xB4
+#define  GFX4d_DFUNCTR     0xB6
 
-#define GFX4d_PWCTR1      0xC0
-#define GFX4d_PWCTR2      0xC1
-#define GFX4d_PWCTR3      0xC2
-#define GFX4d_PWCTR4      0xC3
-#define GFX4d_PWCTR5      0xC4
-#define GFX4d_VMCTR1      0xC5
-#define GFX4d_VMCTR2      0xC7
+#define  GFX4d_PWCTR1      0xC0
+#define  GFX4d_PWCTR2      0xC1
+#define  GFX4d_PWCTR3      0xC2
+#define  GFX4d_PWCTR4      0xC3
+#define  GFX4d_PWCTR5      0xC4
+#define  GFX4d_VMCTR1      0xC5
+#define  GFX4d_VMCTR2      0xC7
 
-#define GFX4d_RDID1       0xDA
-#define GFX4d_RDID2       0xDB
-#define GFX4d_RDID3       0xDC
-#define GFX4d_RDID4       0xDD
+#define  GFX4d_RDID1       0xDA
+#define  GFX4d_RDID2       0xDB
+#define  GFX4d_RDID3       0xDC
+#define  GFX4d_RDID4       0xDD
 
-#define GFX4d_GMCTRP1     0xE0
-#define GFX4d_GMCTRN1     0xE1
+#define  GFX4d_GMCTRP1     0xE0
+#define  GFX4d_GMCTRN1     0xE1
 
-#define LANDSCAPE	0
-#define LANDSCAPE_R	1
-#define PORTRAIT	2
-#define PORTRAIT_R	3
-
-#define SYSTEM		1
-#define FONT1		1
-#define FONT2		2
-#define Pressed		1
-#define Released	0
-#define SLIDER_RAISED	0
-#define SLIDER_SUNKEN	1
-#define NOTOUCH         0
-#define TOUCH_PRESSED   1
-#define TOUCH_RELEASED  2
-#define TOUCH_STATUS    0
-#define TOUCH_GETX      1
-#define TOUCH_GETY      2
-//#define On              1
-//#define Off             0
+#define  LANDSCAPE	     0
+#define  LANDSCAPE_R     1
+#define  PORTRAIT	     2
+#define  PORTRAIT_R	     3
+#define  SOLID		     0
+#define  DOTMATRIXROUND	 1
+#define  DOTMATRIXLED    3
+#define  DOTMATRIXSQUARE 4
+#define  DOTMATRIXFADE   5
+#define  SYSTEM		     1
+#define  FONT1		     1
+#define  FONT2		     2
+#define  Pressed		 1
+#define  Released	     0
+#define  SLIDER_RAISED	 0
+#define  SLIDER_SUNKEN	 1
+#define  NOTOUCH         0
+#define  TOUCH_PRESSED   1
+#define  TOUCH_RELEASED  2
+#define  TOUCH_STATUS    0
+#define  TOUCH_GETX      1
+#define  TOUCH_GETY      2
+#define  KEYPAD			 3
+#define  DRAW_UPDOWN     2
+#define  DRAW_DOWNONLY   1
+#define  DRAW_NONE       0
 
 #define  ALICEBLUE	0xF7DF
 #define  ANTIQUEWHITE	0xFF5A
@@ -406,6 +418,7 @@
 #define  WHITESMOKE	0xF7BE
 #define  YELLOW		0xFFE0
 #define  YELLOWGREEN	0x9E66
+
 #define	 HLSMAX         127
 #define  HLSMAXm2d3     85
 #define  HLSMAXd12      10
@@ -415,28 +428,39 @@
 #define  RGBMAX         127
 #define  RGBMAXm2       254
 #define  UNDEFINED      85
+#define  _redmask    0xF800
+#define  _greenmask  0x07E0
+#define  _bluemask   0x001F
+#define  GET_VERSION                   	0x10   
+#define  ENABLE_TOUCH                   	0x12    
+#define  DISABLE_TOUCH                  	0x13    
+#define  CALIBRATE_MODE                  0x14    
+#define  REGISTER_READ                   0x20    
+#define  REGISTER_WRITE                  0x21    
+#define  REGISTER_START_ADDRESS_REQUEST  0x22    
+#define  REGISTERS_WRITE_TO_EEPROM       0x23    
+#define  EEPROM_READ                     0x28    
+#define  EEPROM_WRITE                  	0x29    
+#define  EEPROM_WRITE_TO_REGISTERS       0x2B 
+#define  TOUCH_ENABLE                    0x00
+#define  TOUCH_DISABLE                   0x01
+#define  HORIZONTAL_SLIDER				0x00
+#define  VERTICAL_SLIDER					0x01
+#define  SHIFT                           0x01
+#define  CAPSLOCK                        0x02
+#define  CTRL                            0x03
+#define  SPRITE_ACTIVE					0x00
+#define  SPRITE_MEMPOS                   0x01
+#define  SPRITE_X                        0x02
+#define  SPRITE_Y                        0x03
+#define  SPRITE_WIDTH                    0x04
+#define  SPRITE_HEIGHT                   0x05
+#define  SPRITE_COLLIDE1                 0x06
+#define  SPRITE_COLLIDE2                 0x07
+#define  SPRITE_16BIT                    0x01
+#define  SPRITE_8BIT                     0x02
+#define  SPRITE_4BIT                     0x03
 
-//#define PROGMEM
-
-#define _redmask    0xF800
-#define _greenmask  0x07E0
-#define _bluemask   0x001F
-#define GET_VERSION                   	0x10   
-#define ENABLE_TOUCH                   	0x12    
-#define DISABLE_TOUCH                  	0x13    
-#define CALIBRATE_MODE                  0x14    
-#define REGISTER_READ                   0x20    
-#define REGISTER_WRITE                  0x21    
-#define REGISTER_START_ADDRESS_REQUEST  0x22    
-#define REGISTERS_WRITE_TO_EEPROM       0x23    
-#define EEPROM_READ                     0x28    
-#define EEPROM_WRITE                  	0x29    
-#define EEPROM_WRITE_TO_REGISTERS       0x2B 
-//#define TOUCH_STATUS                    0x00
-//#define TOUCH_GETX                      0x01
-//#define TOUCH_GETY                      0x02
-#define TOUCH_ENABLE                    0x00
-#define TOUCH_DISABLE                   0x01
 
 static const uint8_t at[] = {
                  0,  1,  1,  2,  2,  3,  3,  4,  5,  5,
@@ -689,10 +713,15 @@ static const uint8_t font2[] = {
 class GFX4d : public Print {
  public:
 
-//SdFat SD;
+#ifndef USE_FS
 File dataFile;
 File userImag;
 File userDat;
+#else
+fs::File dataFile;
+fs::File userImag;
+fs::File userDat;
+#endif
 
 GFX4d();
 
@@ -702,50 +731,61 @@ GFX4d();
            WrGRAMs(uint32_t *data, uint16_t l),
            WrGRAM16(uint16_t color),
            WrGRAMs16(uint16_t *data, uint16_t l),
+           WrGRAMs8(uint8_t *data, uint16_t l, byte mul),
+	       WrGRAMs16232(uint16_t *data, uint16_t l),
+	       WrGRAMs16232(uint16_t *data, uint16_t l, uint8_t *odata, int x, int y),
+           WrGRAM16232(uint16_t mcolor, int32_t l),
+           WrGRAMs16232NT(uint16_t *data, uint16_t l),
+           WrGRAMend(),
+           WrGRAMstart(),
            FillScreen(uint16_t color),
            PutPixel(int16_t x, int16_t y, uint16_t color),
            Font(uint8_t f),
            Contrast(int ctrst),
-	   Vline(int16_t x, int16_t y, int16_t h, uint16_t vcolor),
+	       Vline(int16_t x, int16_t y, int16_t h, uint16_t vcolor),
            Hline(int16_t x, int16_t y, int16_t w, uint16_t hcolor),
            RectangleFilled(int16_t x, int16_t y, int16_t x1, int16_t y1, uint16_t color),
            MoveTo(int16_t x, int16_t y),
            newLine(int8_t f1, int8_t ts, uint16_t ux),
            Open4dGFX(String file4d),
            DownloadFile(String WebAddr, String Fname),
+           DownloadFile(String WebAddr, String Fname, String sha1),
            DownloadFile(String Address, uint16_t port, String hfile, String Fname),
-           Download(String Address, uint16_t port, String hfile, String Fname),
+           Download(String Address, uint16_t port, String hfile, String Fname, String sha1),
            ScrollEnable(boolean se),
            touch_Set(uint8_t mode),
-           UserImage(uint8_t ui),
-           UserImage(uint8_t ui, int altx, int alty),
-           UserImageDR(uint8_t ui, uint16_t uxpos, uint16_t uypos, uint16_t uwidth, uint16_t uheight, uint16_t tuix, uint16_t tuiy),
-           UserImages(uint8_t uisnb, int16_t framenb),
-           UserImages(uint8_t uis, int16_t frame, int offset),
-           UserImages(uint8_t uis, int16_t frame, int offset, int16_t altx, int16_t alty),
-           UserImages(uint8_t uisnb, int16_t framenb, int16_t newx, int16_t newy),
-           UserImagesDR(uint8_t uino, int frames, uint16_t uxpos, uint16_t uypos, uint16_t uwidth, uint16_t uheight),
+           UserImage(uint16_t ui),
+           UserImage(uint16_t ui, int altx, int alty),
+           UserImageDR(uint16_t ui, int16_t uxpos, int16_t uypos, int16_t width, int16_t height, int16_t tuix, int16_t tuiy),
+           UserImages(uint16_t uisnb, int16_t framenb),
+           UserImages(uint16_t uis, int16_t frame, int offset),
+           UserImages(uint16_t uis, int16_t frame, int offset, int16_t altx, int16_t alty),
+           UserImages(uint16_t uisnb, int16_t framenb, int16_t newx, int16_t newy),
+           UserImagesDR(uint16_t uino, int frames, int16_t uxpos, int16_t uypos, int16_t uwidth, int16_t uheight),
            LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
            LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
            LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
            LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-           DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, int16_t uih, uint16_t frame, int16_t bar),
+           DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, int16_t uih, uint16_t frame, int16_t bar, bool images, uint8_t cdv),
            DrawImage(uint32_t Index, int16_t uix, int16_t uiy),
            UserCharacter(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, uint16_t bgcolor),
-           UserCharacterBG(uint32_t *data, uint8_t ucsize, uint16_t ucx, uint16_t ucy, uint16_t color, 
+           UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, 
 boolean draw, uint32_t bgindex),
-           PrintImage(uint8_t iIndex),
+           UserCharacterBG(int8_t ui, uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, boolean draw),
+           UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, boolean draw, uint32_t bgindex, bool type, int8_t ui),
+           PrintImage(uint16_t iIndex),
            PrintImageFile(String ifile),
            PrintImageWifi(String Address, uint16_t port, String hfile),
            PrintImageWifi(String WebAddr),
-           ImageWifi(boolean local, String Address, uint16_t port, String hfile),
-           //touch_Update(),
-           imageTouchEnable(uint8_t gcinum, boolean en),
+           PrintImageWifi(String Address, uint16_t port, String hfile, String SHA1),
+           PrintImageWifi(String WebAddr, String SHA1),
+           ImageWifi(boolean local, String Address, uint16_t port, String hfile, String SHA1),
+           imageTouchEnable(int gcinum, boolean en),
            TextSize(uint8_t s),
            TextColor(uint16_t c),
            TextColor(uint16_t c, uint16_t b),
            TextWrap(boolean w),
-	   BacklightOn(boolean bl),
+	       BacklightOn(boolean bl),
            drawChar2tw(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size),
            drawChar2(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size, uint8_t sizeht),           
            drawChar1tw(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size),
@@ -768,11 +808,18 @@ boolean draw, uint32_t bgindex),
            TWwrite(const char txtinput),
            TWprint(String istr),
            TWprintln(String istr),
+           TWprintAt(uint8_t pax, uint8_t pay, String istr),
            TWcls(),
+           TWcursorOn(bool twco),
            TWcolor(uint16_t fcol),
            TWcolor(uint16_t fcol, uint16_t bcol),
-           DeleteButton(uint8_t hndl, uint16_t color),
-           DeleteButton(uint8_t hndl),
+           DeleteButton(int hndl, uint16_t color),
+           DeleteButton(int hndl),
+           DeleteButtonBG(int hndl, int objBG),
+           UserImageHide(int hndl),
+           UserImageHide(int hndl, uint16_t color),
+           UserImageHideBG(int hndl, int objBG),
+           Orbit(int angle, int lngth, int *oxy),
            ButtonActive(uint8_t butno, boolean act),
            ButtonUp(int hndl),
            ButtonDown(int hndl),
@@ -789,39 +836,56 @@ boolean draw, uint32_t bgindex),
            c565toRGBs(uint16_t i565),
            RGB2HLS(),
            Close4dGFX(),
-           HLS2RGB(uint8_t H, uint8_t L, uint8_t S),
+           HLS2RGB(int H, int L, int S),
            TWtextcolor(uint16_t twc),
            outofrange(int16_t euix, int16_t euiy, int16_t euiw, int16_t euih),
-           Invert(boolean i);
+           FontStyle(uint8_t ctyp),
+		   SpriteAreaSet(uint16_t x, uint16_t y, uint16_t x1, uint16_t y1),
+		   SetSprite(int num, bool active, int x, int y, uint16_t bscolor, uint16_t * sdata),
+		   UpdateSprites(uint16_t bscolor, uint16_t * sdata),
+		   SetNumberSprites(uint16_t numspr),
+		   SpriteEnable(int snum, bool sen),
+		   SpriteUpdate(int16_t tsx, int16_t tsy, int16_t tsx1, int16_t tsy1, uint16_t bscolor, uint16_t * sdata),
+           SetMaxNumberSprites(uint16_t snos),
+		   ResetKeypad(),
+	       Invert(boolean i);
     
   uint16_t RGBto565(uint8_t r, uint8_t g, uint8_t b);
   uint16_t RGBs2COL(uint8_t r, uint8_t g, uint8_t b);
-  uint8_t hue_RGB(uint8_t Hin, uint8_t M1, uint8_t M2);
-  int16_t getHeight(void);
-  int16_t getWidth(void);
+  uint8_t  hue_RGB(int Hin, int M1, int M2);
+  int16_t  getHeight(void);
+  int16_t  getWidth(void);
   uint16_t getWidgetNumFrames(int widget);
-  int8_t FontHeight(void);
-  int8_t Orientation(void);
-  int8_t Font(void); 
-  int16_t getY(void);
-  int16_t getX(void);
+  int8_t   FontHeight(void);
+  int8_t   Orientation(void);
+  int8_t   Font(void); 
+  int16_t  getY(void);
+  int16_t  getX(void);
+  int16_t  ImageTouchedAuto(int UpdateImages);
   uint16_t getScrolledY(uint16_t y);
-  int16_t getScrollOffset(void);
+  int16_t  getScrollOffset(void);
   uint16_t read16(void);
   uint32_t read32(void);
   uint32_t bevelColor(uint16_t colorb);
+  uint32_t HighlightColors(uint16_t colorh, int step);
   uint16_t oldgTX, oldgTY, oldgPEN;
   uint16_t gTX, gTY, gPEN;
   uint16_t touch_GetX(void);
   uint16_t touch_GetY(void);
-  uint8_t touch_GetPen(void);
-  uint8_t imageTouched(void);
-  uint8_t CheckButtons(void);
-  uint8_t getNumberofObjects(void);
-  String GetCommand();
-  boolean CheckSD(void);
-  boolean CheckDL(void);
-  boolean touch_Update(void);
+  uint8_t  touch_GetPen(void);
+  uint16_t imageTouched(void);
+  uint8_t  CheckButtons(void);
+  uint16_t getNumberofObjects(void);
+  uint8_t  getFontData(uint8_t fntnum, uint16_t val);
+  String   GetCommand();
+  int      DecodeKeypad(int kpad, int kpress, byte *kbks, int8_t *kbck);
+  bool     KeypadStatus(int keyType);
+  bool     SpriteInit(uint16_t *sdata, size_t nums);
+  bool	   SpriteAdd(int pos, int snum, int x, int y, uint16_t *sdata);
+  boolean  CheckSD(void);
+  boolean  CheckDL(void);
+  boolean  touch_Update(void);
+  boolean  TWMoveTo(uint8_t twcrx, uint8_t twcry);
   void     Scroll(uint16_t VSP);
   void     setScrollArea(uint16_t TFA, uint16_t BFA);  
   uint8_t  getValfromString(String strval, uint8_t indx);
@@ -829,105 +893,146 @@ boolean draw, uint32_t bgindex),
   uint32_t getIndexfromString(String strval, uint8_t indx);
   uint32_t getCoordfromString(String strval, uint8_t indx);
   uint8_t  ReadCommand(uint8_t reg, uint8_t index);
+  uint16_t GetSliderValue(uint16_t ui, uint8_t axis, uint16_t uiv, uint16_t ming, uint16_t maxg);
+  uint16_t SpriteGetPixel(int snum, int xo, int yo, uint16_t tcolor, uint16_t * sdata);
+  uint16_t SpriteGetPalette(int pnumber);
+  int      GetSpritesAt(int xo, int yo, uint16_t tcolor, int * slist, uint16_t * sdata);
+  int      SpriteTouched();
+  int      GetSprite(int snum, int choice);
+  int      GetNumberSprites();
+  int16_t  GetSpriteImageNum(int snum);
   void     SetCommand(uint8_t c);
   void     SetData(uint8_t d);
   void     SetData(uint8_t * data, uint8_t size);
+  void     SpriteSetPalette(int pnumber, uint16_t plcolor);
 
-  uint8_t GFX4d_RED;
-  uint8_t GFX4d_BLUE;
-  uint8_t GFX4d_GREEN;
+  uint8_t  GFX4d_RED;
+  uint8_t  GFX4d_BLUE;
+  uint8_t  GFX4d_GREEN;
+  uint16_t palette4bit[16] = {BLACK, MAROON, GREEN, OLIVE, NAVY, PURPLE, TEAL, SILVER, GRAY, RED, LIME, YELLOW, BLUE, FUCHSIA, AQUA, WHITE};
 
-  virtual size_t write(uint8_t);
+  virtual  size_t write(uint8_t);
 
 private:
-  String dat4d;
-  String gci4d;
+  String   dat4d;
+  String   gci4d;
   uint16_t tdark;
   uint16_t tlight;
   uint16_t wi;
   uint16_t hi;
+  uint16_t ddoscol;
   uint16_t scrollOffset;
   uint8_t  spiread(void);
   uint8_t  ssSpeed;
   inline void setGRAM_(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
- // uint8_t  tabcolor;
   boolean  sEnable;
   boolean  hwSPI;
-  int8_t fsh;
-  int8_t fsh1;
-  int8_t fsw;
-  int8_t fno;
-  int8_t oldtpen;
-  int8_t lastfsh;
-  int8_t lastfsw;
-  int8_t  _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd;
+  boolean  twcurson;
+  boolean  shift;
+  boolean  caps;
+  boolean  ctrl;
+  boolean  ddos;
+  int8_t   fsh;
+  int8_t   fsh1;
+  int8_t   fsw;
+  int8_t   fno;
+  int8_t   oldtpen;
+  int8_t   lastfsh;
+  int8_t   lastfsw;
+  int8_t   _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd;
 
 protected:
-
-  uint32_t krepeat;    
+  
+  uint32_t krepeat;
+  uint32_t tuiIndex[MAX_WIDGETS];    
   int16_t
-    width, height, cursor_x, cursor_y ,scrollpos, xic, yic;
+           tuix[MAX_WIDGETS],
+           tuiy[MAX_WIDGETS],
+           tuiw[MAX_WIDGETS],
+           tuih[MAX_WIDGETS],
+           pressed = -1,
+           sdetaila,
+           sdetaily,
+           sdetailh,
+           sdetailx,
+           sdetailw,
+           *spriteData,
+           *spriteList,
+	       *spriteLast,
+	       *spriteNum,
+           width, height, cursor_x, cursor_y ,scrollpos, xic, yic;
   uint16_t
-    gciobjframes[100],
-    twframecol,
-    textcolor, textbgcolor,
-    txtf, txtb,
-    txtx,
-    txty,
-    txtw,
-    txth, 
-    twcurx,
-    twcury,
-    twcolnum,
-    bposx[128],
-    bposy[128],
-    bposw[128],
-    bposh[128],
-    bposc[128],
-    txfcol[600],
-    butdelay;
+#ifndef ESP8266
+           buf16[12001],
+#endif
+	       gciobjframes[MAX_WIDGETS],
+           twframecol,
+           textcolor, textbgcolor,
+           chracc, chrdwn,
+           sgx,
+           sgy,
+           sgw,
+           sgh,
+           txtf, txtb,
+           txtx,
+           txty,
+           txtw,
+           txth, 
+           twcurx,
+           twcury,
+           twcolnum,
+           bposx[128],
+           bposy[128],
+           bposw[128],
+           bposh[128],
+           bposc[128],
+           txfcol[600],
+	       spriteArea[4],
+	       numSprites,
+           butdelay,
+		   gciobjnum,
+           gciobjtouched;
   uint8_t
-    lastpen,
-    prevpen,
-    twxpos,
-    twypos,
-    pencount,
-    oldbut,
-    gciobj[1200],
-    gciobjnum,
-    gciobjtouched,
-    twcl,
-    bstat[128],
-    txtbuf[600],
-    tchbuf[15],
-    textsize,
-    textsizeht,
-    rotation,
-    piflag,
-    pdfix,
-    h,
-    l,
-    s, 
-    _lastbut,
-    _but;
+           cdv[MAX_WIDGETS],
+           msprites,
+		   fstyle,
+           lastpen,
+           prevpen,
+           twxpos,
+           twypos,
+           pencount,
+           oldbut,
+           twcl,
+           bstat[128],
+           txtbuf[600],
+           tchbuf[15],
+           textsize,
+           textsizeht,
+           rotation,
+           piflag,
+           pdfix,
+           h,l,s, 
+           _lastbut,
+           _but;
   boolean
-    tchen,
-    uimage,
-    twframe,
-    butchnge,
-    dlok,
-    sdok,
-    gciobjtouchenable[100],
-    scrolled,
-    nl,
-    txtwin,
-    wrap,
-    bactive[128];
+           saSet,
+           tchen,
+           uimage,
+           twframe,
+           butchnge,
+           dlok,
+           sdok,
+           gciobjtouchenable[MAX_WIDGETS],
+           scrolled,
+           nl,
+           txtwin,
+           wrap,
+           bactive[128];
   String
-    cmdtxt,
-    twtext;
+           cmdtxt,
+           twtext;
   long
-    touchTime;
+           touchTime;
 };
 
 #endif

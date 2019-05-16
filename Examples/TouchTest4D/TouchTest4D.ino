@@ -1,7 +1,3 @@
-/**************************************************************
-* TouchTest4D                                                 *
-* A simple demo to test the touch performace of the gen4-IoD  *
-**************************************************************/
 
 #include "ESP8266WiFi.h"
 #include "GFX4d.h"

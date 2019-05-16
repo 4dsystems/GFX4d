@@ -1,3 +1,7 @@
+//
+// NB! This is a file generated from the .4Dino file, changes will be lost
+//     the next time the .4Dino file is built
+//
 /**************************************************************
 * Meter                                                       *
 * A Demo to show the use of gfx.UserImagesDR to speed up      *
