@@ -1,4 +1,5 @@
-![image](http://www.4dsystems.com.au/imagenes/header.png)
+![image](http://www.4dsystems.com.au/downloads/4DLogo.png)
+
 # GFX4d
 ================================================================================
 
