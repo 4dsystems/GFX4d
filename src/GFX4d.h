@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems GFX4d Library                                                *
 *                                                                          *
-*  Date:        11 July 2016                                               *
+*  Date:        28 September 2019                                          *
 *                                                                          *
 *  Description: Provides Graphics, Touch Control and SD Card functions     *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -187,6 +187,25 @@
 #define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
 #include <FS.h> //spiff file system
 #endif
+#ifdef ESP32
+#define M5STACK
+#endif
+#ifdef M5STACK
+// Buttons
+  #define BTN_A 0
+  #define BTN_B 1
+  #define BTN_C 2
+  #define BUTTON_A 0
+  #define BUTTON_B 1
+  #define BUTTON_C 2
+  #define BUTTON_A_PIN 39
+  #define BUTTON_B_PIN 38
+  #define BUTTON_C_PIN 37
+
+  // BEEP PIN
+  #define SPEAKER_PIN 25
+  #define TONE_PIN_CHANNEL 0
+#endif
 
 #define MAX_WIDGETS	       400
 
@@ -277,6 +296,21 @@
 #define  DRAW_UPDOWN     2
 #define  DRAW_DOWNONLY   1
 #define  DRAW_NONE       0
+#define  MAX_ARCSIZE       200
+#define  GRADIENT_RAISED   0
+#define  GRADIENT_SUNKEN   1
+#define  GRADIENT_FLATTEN  -1
+#define  GRADIENT_HIGH     63
+#define  GRADIENT_MEDIUM   32
+#define  GRADIENT_LOW      24
+#define  GRADIENT_OFF      0
+#define  GRADIENT_DARKEN0  0
+#define  GRADIENT_DARKEN1  1
+#define  GRADIENT_DARKEN2  2
+#define  BUTTON_SQUARE	   0
+#define  BUTTON_ROUNDED	   1
+#define  BUTTON_CIRCULAR   2
+#define  BUTTON_CIRCULAR_TOP 3
 
 #define  ALICEBLUE	0xF7DF
 #define  ANTIQUEWHITE	0xFF5A
@@ -813,6 +847,7 @@ boolean draw, uint32_t bgindex),
            TWcursorOn(bool twco),
            TWcolor(uint16_t fcol),
            TWcolor(uint16_t fcol, uint16_t bcol),
+		   TWenable(boolean t),
            DeleteButton(int hndl, uint16_t color),
            DeleteButton(int hndl),
            DeleteButtonBG(int hndl, int objBG),
@@ -848,11 +883,18 @@ boolean draw, uint32_t bgindex),
 		   SpriteUpdate(int16_t tsx, int16_t tsy, int16_t tsx1, int16_t tsy1, uint16_t bscolor, uint16_t * sdata),
            SetMaxNumberSprites(uint16_t snos),
 		   ResetKeypad(),
-	       Invert(boolean i);
+		   TextWindowImage(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtcolor, uint16_t TWimg, uint16_t frcolor),
+		   drawChar2TWimage(uint8_t ch, uint16_t uino, int frames, int16_t uxpos, int16_t uypos, uint16_t txtcol),
+		   gradientShape(int ow, int xPos, int yPos, int w, int h, int r1, int r2, int r3, int r4, int darken, uint16_t color, int sr1, int gl1, uint16_t colorD, int sr3, int gl3, int gtb),
+		   HlineD(int y, int x1, int x2, uint16_t color),
+		   ChangeColor(uint16_t oCol, uint16_t nCol),
+		   ButtonXstyle(byte bs),
+		   Invert(boolean i);
     
   uint16_t RGBto565(uint8_t r, uint8_t g, uint8_t b);
   uint16_t RGBs2COL(uint8_t r, uint8_t g, uint8_t b);
   uint8_t  hue_RGB(int Hin, int M1, int M2);
+  uint16_t ReadPixel(uint16_t xrp, uint16_t yrp);
   int16_t  getHeight(void);
   int16_t  getWidth(void);
   uint16_t getWidgetNumFrames(int widget);
@@ -896,6 +938,7 @@ boolean draw, uint32_t bgindex),
   uint16_t GetSliderValue(uint16_t ui, uint8_t axis, uint16_t uiv, uint16_t ming, uint16_t maxg);
   uint16_t SpriteGetPixel(int snum, int xo, int yo, uint16_t tcolor, uint16_t * sdata);
   uint16_t SpriteGetPalette(int pnumber);
+  uint16_t Grad(int raisSunk, int state, int glev, int h1, int pos, uint16_t colToAdj);
   int      GetSpritesAt(int xo, int yo, uint16_t tcolor, int * slist, uint16_t * sdata);
   int      SpriteTouched();
   int      GetSprite(int snum, int choice);
@@ -922,6 +965,7 @@ private:
   uint16_t hi;
   uint16_t ddoscol;
   uint16_t scrollOffset;
+  uint16_t pixToChange[40];
   uint8_t  spiread(void);
   uint8_t  ssSpeed;
   inline void setGRAM_(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
@@ -932,6 +976,7 @@ private:
   boolean  caps;
   boolean  ctrl;
   boolean  ddos;
+  boolean  twen;
   int8_t   fsh;
   int8_t   fsh1;
   int8_t   fsw;
@@ -939,7 +984,37 @@ private:
   int8_t   oldtpen;
   int8_t   lastfsh;
   int8_t   lastfsw;
-  int8_t   _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd;
+  int8_t   _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd, _sRes;
+
+public:
+  int16_t  //lastArcOld[max_ARCSIZE],
+           //inx[max_ARCSIZE],
+           GSCropArcLeft = -1,
+           GSCropArcRight = -1,
+		   xpGSaPos[4],
+           ypGSaPos[4],
+           radsGS[4],
+           //GSCropArcLeft := -1,
+           //GSCropArcRight := -1,
+           GSCropLastVal,
+           lastAsize,
+           keepLastArc = 0,
+           protectLA = 0,
+           GSErase,
+           GSEraseXpos,
+           GSEraseYpos,
+           GSEraseHeight,
+           GSErasePHeight,
+           GSEraseColour,
+           GSEraseGLevel,
+           GSERaisedSunk,
+		   GSSLastSliderVal, 
+		   GSSBGColor,
+		   GSSArconly,
+           GSSsxpos = -9999;
+           //gradofs;
+  uint16_t lastArcOld[MAX_ARCSIZE],
+           inx[MAX_ARCSIZE];
 
 protected:
   
@@ -950,7 +1025,18 @@ protected:
            tuiy[MAX_WIDGETS],
            tuiw[MAX_WIDGETS],
            tuih[MAX_WIDGETS],
-           pressed = -1,
+           xpApos[4],
+           ypApos[4],
+           rads[4],
+		   
+		   //lastArcOld[max_ARCSIZE],
+           //inx[MAX_ARCSIZE],
+           //GSCropArcLeft = -1,
+           //GSCropArcRight = -1,
+           //lastAsize,
+		   TWimage,
+		   TWimageCount,
+		   pressed = -1,
            sdetaila,
            sdetaily,
            sdetailh,
@@ -968,7 +1054,9 @@ protected:
 	       gciobjframes[MAX_WIDGETS],
            twframecol,
            textcolor, textbgcolor,
-           chracc, chrdwn,
+           chracc, chrdwn,		   
+		   TWimgSet = 0,
+		   TWimageTextCol,
            sgx,
            sgy,
            sgw,
@@ -994,7 +1082,10 @@ protected:
            gciobjtouched;
   uint8_t
            cdv[MAX_WIDGETS],
-           msprites,
+           TWcharByte, 
+		   TWcharBit,
+		   UIDRcharOn,
+		   msprites,
 		   fstyle,
            lastpen,
            prevpen,
@@ -1006,6 +1097,7 @@ protected:
            bstat[128],
            txtbuf[600],
            tchbuf[15],
+		   //tdata[256],
            textsize,
            textsizeht,
            rotation,
@@ -1013,7 +1105,8 @@ protected:
            pdfix,
            h,l,s, 
            _lastbut,
-           _but;
+           _but,
+		   bxStyle;
   boolean
            saSet,
            tchen,

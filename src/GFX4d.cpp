@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems GFX4d Library                                                *
 *                                                                          *
-*  Date:        11 July 2016                                               *
+*  Date:        28 September 2019                                          *
 *                                                                          *
 *  Description: Provides Graphics, Touch Control and SD Card functions     *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -211,11 +211,15 @@ GFX4d::GFX4d(){
     _tcs  = 2;
     _sd   = 5;
     #else
-    _dc   = 33;
-    _cs   = 27;
+    _dc   = 27; //m5stack
+    _cs   = 14; //m5stack
+	_sRes = 33; //m5stack
+	//_dc   = 33;
+    //_cs   = 27;
     _disp = 32;
     _tcs  = 9;
-    _sd   = 10;
+    _sd   = 4; //m5stack
+	//_sd   = 10;
     #endif
     scrollOffset = 0;
     width    = 240;
@@ -238,17 +242,19 @@ GFX4d::GFX4d(){
     twcurson  = true;
     
 }
-
+#ifdef M5STACK
 SPISettings spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
 SPISettings spiSettingsD = SPISettings(79000000, MSBFIRST, SPI_MODE0);
+#else
+SPISettings spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
+SPISettings spiSettingsD = SPISettings(79000000, MSBFIRST, SPI_MODE0);
+SPISettings spiSettingsR = SPISettings(39000000, MSBFIRST, SPI_MODE0);
+#endif
 SPISettings spiSettingsT = SPISettings(6900000, MSBFIRST, SPI_MODE0);
 SPISettings spiSettingsT32 = SPISettings(4900000, MSBFIRST, SPI_MODE0);
  
 void GFX4d::begin(void) {
 
-  #ifdef ESP32
-  delay(500);
-  #endif
   pinMode(_sclk, OUTPUT);
   pinMode(_mosi, OUTPUT);
   pinMode(_miso, INPUT);
@@ -257,6 +263,13 @@ void GFX4d::begin(void) {
   pinMode(_disp, OUTPUT);
   pinMode(_tcs, OUTPUT);
   pinMode(_sd, OUTPUT);
+  #ifdef ESP32
+  pinMode(_sRes, OUTPUT);
+  digitalWrite(_sRes, LOW);
+  delay(150);
+  digitalWrite(_sRes, HIGH);
+  delay(100);
+  #endif
   #ifndef ESP8266
   ledcSetup(1, 1000, 10);
   ledcAttachPin(_disp, 1);
@@ -277,9 +290,17 @@ void GFX4d::begin(void) {
   SetCommand(GFX4d_PWCTR2); SetData(0x10);
   SetCommand(GFX4d_VMCTR1); SetData(0x3e); SetData(0x28); 
   SetCommand(GFX4d_VMCTR2); SetData(0x86);
+  #ifdef M5STACK
+  SetCommand(GFX4d_MADCTL); SetData(0xA8);
+  #else
   SetCommand(GFX4d_MADCTL); SetData(0x48);
+  #endif
   SetCommand(GFX4d_PIXFMT); SetData(0x55); 
-  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x18); 
+  #ifdef M5STACK
+  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x13);   
+  #else
+  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x18);
+  #endif 
   SetCommand(GFX4d_DFUNCTR); SetData(0x08); SetData(0x82); SetData(0x27);  
   SetCommand(0xF2); SetData(0x00); 
   SetCommand(GFX4d_GAMMASET); SetData(0x01); 
@@ -298,14 +319,17 @@ void GFX4d::begin(void) {
   SetCommand(GFX4d_DISPON);
   SPI.endTransaction();
   setScrollArea(0, 0);
+  #ifdef M5STACK
+  Invert(true);
+  #endif
   Cls(0);
   #ifndef USE_FS
   #ifndef ESP32
-  #ifdef SDFS_H
+  //#ifdef SDFS_H
   if(SD.begin(_sd, spiSettings)){
-  #else
-  if(SD.begin(_sd, 79000000)){
-  #endif
+  //#else
+  //if(SD.begin(_sd, 79000000)){
+  //#endif
   #else
   if(SD.begin(_sd, SPI, 79000000)){
   #endif
@@ -316,7 +340,9 @@ void GFX4d::begin(void) {
   } else {
   sdok = false;
   }
+  #ifndef ESP32
   BacklightOn(true);
+  #endif
   Orientation(0);
 }
 
@@ -834,11 +860,11 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
   for(int b = 0; b < rem; b += 2){
   buf16[pc] = (buf[b] << 8) | buf[b + 1];
   pc ++;
-  if(pc == 12000){
+  //if(pc == 12000){
   WrGRAMs16(buf16, pc << 1);
   //WrGRAMs16232(buf16, pc);
   pc = 0;
-  } 
+  //} 
   }
   } else {
   WrGRAMs8(buf, rem, mul);
@@ -1188,8 +1214,18 @@ void GFX4d::Open4dGFX(String file4d){
   gciobjnum = 0;
   imageTouchEnable(-1, false);
   String inputString;
+  #ifndef ESP32
   dat4d = file4d + ".dat";
   gci4d = file4d + ".gci";
+  #else
+  #ifndef USE_FS  
+  dat4d = "/" + file4d + ".dat";
+  gci4d = "/" + file4d + ".gci";	  
+  #else
+  dat4d = file4d + ".dat";
+  gci4d = file4d + ".gci";	  
+  #endif
+  #endif
   #ifndef USE_FS
   userDat = SD.open(dat4d);
   #else
@@ -1615,11 +1651,20 @@ void GFX4d::TWprintAt(uint8_t pax, uint8_t pay, String istr){
 }
 
 void GFX4d::TWwrite(const char txtinput){
-  drawChar2tw(twcurx, twcury, 0, txtf, txtb, 1);
+  //if(twen == false) return;
+  if(TWimgSet){
+  if(twcurson && twen)drawChar2TWimage(0, TWimage, 0, twcurx, twcury, txtf);
+  }else{
+  if(twcurson && twen)drawChar2tw(twcurx, twcury, 0, txtf, txtb, 1);
+  }
   boolean skip2 = false;
   if(txtinput > 31){
   twtext = twtext + char(txtinput);
-  drawChar2tw(twcurx, twcury, txtinput - 32, twcolnum, txtb, 1);
+  if(TWimgSet){
+  if(twen)drawChar2TWimage(txtinput - 32, TWimage, 0, twcurx, twcury, twcolnum);
+  }else{
+  if(twen)drawChar2tw(twcurx, twcury, txtinput - 32, twcolnum, txtb, 1);
+  }
   txtbuf[(chracc * twypos) + twxpos] = txtinput;
   txfcol[(chracc * twypos) + twxpos] = twcolnum;
   twcurx = twcurx + 9;
@@ -1674,14 +1719,22 @@ void GFX4d::TWwrite(const char txtinput){
   twypos --;
   twcurx = txtx + (((txtw / 9) * 9) - 9);
   twxpos = chracc - 1; 
-  drawChar2tw(twcurx, twcury, 0, twcolnum, txtb, 1);
+  if(TWimgSet){
+  if(twen)drawChar2TWimage(0, TWimage, 0, twcurx, twcury, twcolnum);
+  }else{
+  if(twen)drawChar2tw(twcurx, twcury, 0, twcolnum, txtb, 1);
+  }
   txtbuf[(chracc * twypos) + twxpos] = txtinput;
   txfcol[(chracc * twypos) + twxpos] = twcolnum;
   }
   if(twcurx > txtx && lenct > 0  && skip2 == false){
   twcurx = twcurx - 8 - 1;
   twxpos --;
-  drawChar2tw(twcurx, twcury, 0, twcolnum, txtb, 1);
+  if(TWimgSet){
+  if(twen)drawChar2TWimage(0, TWimage, 0, twcurx, twcury, twcolnum);
+  }else{
+  if(twen)drawChar2tw(twcurx, twcury, 0, twcolnum, txtb, 1);
+  }
   txtbuf[(chracc * twypos) + twxpos] = txtinput;
   txfcol[(chracc * twypos) + twxpos] = twcolnum;
   }  
@@ -1696,6 +1749,7 @@ void GFX4d::TWwrite(const char txtinput){
   uint16_t tempp;
   uint16_t tempcpos;
   uint16_t temptwcol;
+  uint16_t temptwcolc;
   boolean drawspc1;
   boolean drawspc2;
   for(int n = 0; n < chrdwn - 1; n ++){
@@ -1705,6 +1759,7 @@ void GFX4d::TWwrite(const char txtinput){
   tempc = txtbuf[tempcpos];
   tempp = txtbuf[(n * chracc) + o];
   temptwcol = txfcol[tempcpos];
+  temptwcolc = txfcol[(n * chracc) + o];
   txtbuf[(n * chracc) + o] = tempc;
   txfcol[(n * chracc) + o] = temptwcol;
   if((tempc < 33) && (tempp < 33)){
@@ -1712,17 +1767,32 @@ void GFX4d::TWwrite(const char txtinput){
   } else {
   drawspc1 = true;
   }
-  if(tempc < 32){
-  tempc = 32;
+  if(tempc < 32) tempc = 32;
+  if(tempp < 32) tempp = 32;
+  if(tempc != tempp || temptwcol != temptwcolc){
+  if(TWimgSet){
+  if(twen)drawChar2TWimage(tempc - 32, TWimage, 0, txtx + (9 * o), txty + (16 * n), temptwcol);
+  }else{
+  if(twen)drawChar2tw(txtx + (9 * o), txty + (16 * n), tempc - 32, temptwcol, txtb, 1);
   }
-  drawChar2tw(txtx + (9 * o), txty + (16 * n), tempc - 32, temptwcol, txtb, 1);
+  }
   }
   }  
   twcury = twcury - 16;
   twypos --;
-  RectangleFilled(twcurx, twcury, twcurx + (txtw - 1) - 1, twcury + 16, txtb);
+  if(TWimgSet){
+  if(twen)UserImagesDR(TWimage, 0, twcurx - tuix[TWimage], twcury - tuiy[TWimage], txtw - 1, 16);
+  }else{
+  if(twen)RectangleFilled(twcurx, twcury, twcurx + (txtw - 1) - 1, twcury + 16, txtb);	  
   }
-  if(twcurson) drawChar2tw(twcurx, twcury, 63, txtf, txtb, 1);
+  }
+  if(twcurson){ 
+  if(TWimgSet){
+  if(twen)drawChar2TWimage(63, TWimage, 0, twcurx, twcury, txtf);	  
+  }else{
+  if(twen)drawChar2tw(twcurx, twcury, 63, txtf, txtb, 1);
+  }
+  }
 }
 
 void GFX4d::TWcursorOn(bool twco){
@@ -1730,7 +1800,11 @@ void GFX4d::TWcursorOn(bool twco){
 }
 
 void GFX4d::TWcls(){
+  if(TWimgSet){
+  UserImages(TWimage, 0);	  
+  }else{	  
   RectangleFilled(txtx - 3, txty - 3, (txtx - 3) + (txtw + 2) - 1, (txty - 3) + (txth + 2) - 1, txtb);
+  }
   twcurx = txtx;
   twcury = txty;
   twxpos = 0;
@@ -1751,7 +1825,18 @@ void GFX4d::TWcolor(uint16_t fcol, uint16_t bcol){
   TWtextcolor(fcol);
 }
 
+void GFX4d::TextWindowImage(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtcolor, uint16_t TWimg, uint16_t frcolor){
+  TWimage = TWimg;
+  TWimgSet = 1;
+  if(x < tuix[TWimg]) x = tuix[TWimg]; 
+  if(y < tuiy[TWimg]) y = tuiy[TWimg];
+  if(x + w > tuix[TWimg] + tuiw[TWimg]) w = tuix[TWimg] + tuiw[TWimg] - x;
+  if(y + h > tuiy[TWimg] + tuih[TWimg]) h = tuiy[TWimg] + tuih[TWimg] - y;
+  TextWindow(x, y, w, h, txtcolor, 0);
+}
+
 void GFX4d::TextWindow(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtcolor, uint16_t txbcolor, uint16_t frcolor){
+  twen = true;
   for(int n = 0; n < 600; n ++){
   txtbuf[n] = 0;
   }
@@ -1779,20 +1864,30 @@ void GFX4d::TextWindow(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtc
   chracc = txtw / 9;
   chrdwn = txth / 16;
   PanelRecessed(x, y, w, h, frcolor);
-  RectangleFilled(x + 3, y + 3, (x + 3) + (w - 6) - 1, (y + 3) + (h - 6) - 1, txbcolor);    
+  RectangleFilled(x + 3, y + 3, (x + 3) + (w - 6) - 1, (y + 3) + (h - 6) - 1, txbcolor);
+  TWimgSet = 0;  
 }
 
+void GFX4d::TWenable(boolean t){
+  twen = t;
+}  
+
 void GFX4d::TextWindowRestore(){
+  twen = true;
   uint16_t chracc = txtw / (fsw +1);
   uint8_t chrdwn = txth / fsh;
   txtwin = true;
   twtext = "";
   uint16_t tcoltw;
+  if(TWimgSet){
+  UserImages(TWimage, 0);  
+  }else{	  
   if(twframe){
   PanelRecessed(txtx - 6, txty - 6, txtw + 8 , txth + 8, twframecol);
   RectangleFilled(txtx - 3, txty - 3, (txtx - 3) + (txtw + 2) - 1, (txty - 3) + (txth + 2) - 1, txtb);
   } else {
   RectangleFilled(txtx - 3, txty - 3, (txtx - 3) + (txtw + 2) - 1, (txty - 3) + (txth + 2) - 1, txtb);
+  }
   }
   uint16_t tempc;
   for(int n = 0; n < (chrdwn - 1); n ++){
@@ -1804,12 +1899,18 @@ void GFX4d::TextWindowRestore(){
   tempc = 32;
   }
   tcoltw = txfcol[(n  * chracc) + o];
+  if(TWimgSet){
+  drawChar2TWimage(tempc - 32, TWimage, 0, txtx + ((fsw + 1) * o), txty + (fsh * n), tcoltw);	  
+  }else{
   drawChar2tw(txtx + ((fsw + 1) * o), txty + (fsh * n), tempc - 32, tcoltw, txtb, 1);
+  }
   }
   }     
 }
 
 void GFX4d::TextWindow(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtcolor, uint16_t txbcolor){
+  twen = true;
+  if(!(TWimgSet)) TWimage = -1;
   for(int n = 0; n < 600; n ++){
   txtbuf[n] = 0;
   }
@@ -1835,7 +1936,7 @@ void GFX4d::TextWindow(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtc
   twframe = false;
   chracc = txtw / 9;
   chrdwn = txth / 16;
-  RectangleFilled(x, y, x + w - 1, y + h - 1, txbcolor);    
+  if(TWimage == -1)RectangleFilled(x, y, x + w - 1, y + h - 1, txbcolor);    
 }
 
 void GFX4d::drawChar1(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t sizew, uint8_t sizeht){
@@ -2020,6 +2121,160 @@ void GFX4d::WrGRAMs16(uint16_t *data, uint16_t l) {
   SPI.endTransaction();
 }
 
+uint16_t GFX4d::ReadPixel(uint16_t xrp, uint16_t yrp) {
+  uint32_t casCoord = (xrp << 16)| xrp;
+  uint32_t pasCoord = (yrp << 16)| yrp;
+  digitalWrite(_cs, LOW);
+  digitalWrite(_dc, LOW);
+  SPI.write(GFX4d_CASET);
+  digitalWrite(_dc, HIGH);
+  SPI.write32(casCoord);
+  digitalWrite(_dc, LOW);
+  SPI.write(GFX4d_PASET);
+  digitalWrite(_dc, HIGH);
+  SPI.write32(pasCoord);
+  digitalWrite(_dc, LOW);
+  SPI.write(GFX4d_RAMRD);
+  digitalWrite(_dc, HIGH);
+  SPI.beginTransaction(spiSettingsD);
+  digitalWrite(_dc, HIGH);  
+  digitalWrite(_cs, LOW);
+  uint16_t dcol = SPI.transfer(0);
+  uint16_t tcol = (SPI.transfer(0) & 0xF8) << 8;
+  tcol = tcol | ((SPI.transfer(0) & 0xFC) << 3);
+  tcol = tcol | (SPI.transfer(0) >> 3);
+  digitalWrite(_cs, HIGH);
+  SPI.endTransaction();
+  return tcol;
+}
+
+void GFX4d::ChangeColor(uint16_t oCol, uint16_t nCol) {
+  uint32_t tdw;
+  uint16_t wcc, hcc;
+  uint16_t tcol, tcol1;
+  //uint16_t pixToChange[20];
+  int r, c;
+  if(Orientation() < 2){
+	wcc = 320 ; hcc = 240;  
+  } else {
+	hcc = 320; wcc = 240;  
+  }
+  r = hcc;
+  c = wcc / 40;
+  byte changed;
+  int c1sum;
+  for(int r1 = 0; r1 < r; r1 ++){
+  yield();
+  for(int c1 = 0; c1 < c; c1 ++){
+  c1sum = c1 * 40;
+  uint32_t casCoord = (c1sum << 16) | (c1sum + 39);
+  uint32_t pasCoord = (r1 << 16) | r1;
+  digitalWrite(_cs, LOW);
+  digitalWrite(_dc, LOW);
+  SPI.write(GFX4d_CASET);
+  digitalWrite(_dc, HIGH);
+  SPI.write32(casCoord);
+  digitalWrite(_dc, LOW);
+  SPI.write(GFX4d_PASET);
+  digitalWrite(_dc, HIGH);
+  SPI.write32(pasCoord);
+  digitalWrite(_dc, LOW);
+  SPI.write(GFX4d_RAMRD);
+  digitalWrite(_dc, HIGH);
+  SPI.beginTransaction(spiSettingsD);
+  digitalWrite(_dc, HIGH);  
+  digitalWrite(_cs, LOW);
+  uint16_t dcol = SPI.transfer(0);
+  uint32_t dcol1;
+  changed = 0;
+  for(int n = 0; n < 40; n+= 1){
+  /*
+  dcol = SPI.transfer16(0);
+  tcol = (dcol & 0xF800) | ((dcol & 0xFC) << 3);
+  dcol = SPI.transfer16(0);
+  tcol = tcol | (dcol & 0xf800) >> 11; 
+  tcol1 = (dcol & 0xf8) << 8;
+  dcol = SPI.transfer16(0);
+  tcol1 = tcol1 | ((dcol & 0xfc00) >> 5);
+  tcol1 = tcol1 | ((dcol & 0xFC) >> 3);
+  */
+  tcol = (SPI.transfer(0) & 0xF8) << 8;
+  dcol = SPI.transfer16(0);
+  tcol = tcol | ((dcol & 0xFC00) >> 5);
+  tcol = tcol | ((dcol & 0xFC) >> 3);
+  //tcol = tcol | (SPI.transfer(0) >> 3);
+  if(tcol != oCol){
+  pixToChange[n] = tcol;
+  }else{
+  changed = 1;
+  pixToChange[n] = nCol;
+  }
+  //if(tcol1 != oCol){
+  //pixToChange[n + 1] = tcol1;
+  //}else{
+  //changed = 1;
+  //pixToChange[n + 1] = nCol;
+  //}
+  }
+  digitalWrite(_cs, HIGH);
+  SPI.endTransaction();  
+  if(changed){
+  setGRAM(c1 * 40, r1, (c1 * 40) + 39, r1);
+  WrGRAMs16232(pixToChange, 40);
+  }
+  }
+  }
+}
+
+/*
+void GFX4d::WrGRAMs8(uint8_t *data, uint16_t l, byte mul) {
+  uint8_t tdata[256];
+  if(UIDRcharOn){
+    int dinc = 0;
+	uint8_t chi = TWimageTextCol >> 8;
+	uint8_t clo = TWimageTextCol & 0xFF;
+	uint8_t testf;
+	TWcharBit = 6;
+	for(int rdchr = 0; rdchr < 63; rdchr ++){
+	  testf = font2[TWimageCount + TWcharByte] >> TWcharBit;
+	  if(testf & 2){
+        tdata[dinc] = chi;
+        tdata[dinc + 1] = clo;  
+        //tdata[dinc + 2] = TWimageTextCol >> 8;
+        //tdata[dinc + 3] = TWimageTextCol & 0xff;
+	  } else {
+	    tdata[dinc] = data[dinc];
+	    tdata[dinc + 1] = data[dinc + 1];
+	  }
+	  if(testf & 1){
+        //tdata[dinc] = TWimageTextCol >> 8;
+        //tdata[dinc + 1] = TWimageTextCol & 0xff;
+		tdata[dinc + 2] = chi;
+        tdata[dinc + 3] = clo;  
+      } else {
+	    tdata[dinc + 2] = data[dinc + 2];
+	    tdata[dinc + 3] = data[dinc + 3];
+	  }
+	  dinc += 4;
+	if(TWcharBit == 0){
+      TWcharBit = 8; TWcharByte ++;	  
+    }
+    TWcharBit -= 2;
+	}
+  }
+  SPI.beginTransaction(spiSettingsD);
+  digitalWrite(_dc, HIGH);  
+  digitalWrite(_cs, LOW);
+  if(UIDRcharOn){
+  SPI.writeBytes(tdata, l);
+  } else {
+  SPI.writeBytes(data, l);
+  }
+  digitalWrite(_cs, HIGH);
+  SPI.endTransaction();
+}
+*/
+
 void GFX4d::WrGRAMs8(uint8_t *data, uint16_t l, byte mul) {
   uint32_t tdw;
   uint16_t tdy;
@@ -2030,9 +2285,27 @@ void GFX4d::WrGRAMs8(uint8_t *data, uint16_t l, byte mul) {
   if(mul == 2){
   #ifndef ESP32
   if(l >= 4){
+  if(UIDRcharOn){
+  uint16_t testf = font2[TWimageCount + TWcharByte] >> TWcharBit;
+  if(testf & 2){
+  tdw = TWimageTextCol << 16;
+  }else{
+  tdw = (*data++ << 24) + (*data++ << 16);  
+  }
+  if(testf & 1){
+  tdw = tdw + TWimageTextCol;
+  }else{
+  tdw = tdw + (*data++ << 8) + (*data++);  
+  }
+  if(TWcharBit == 0){
+  TWcharBit = 8; TWcharByte ++;	  
+  }
+  TWcharBit -= 2;
+  }else{
   tdw = (*data++ << 24) + (*data++ << 16) + (*data++ << 8) + *data++;
+  }
   l-= 4;
-  SPI.write32(tdw);
+  SPI.write32(tdw, true);
   } else {
   tdy = (*data++ << 8) + *data++;
   l-= 2;
@@ -2352,12 +2625,13 @@ void GFX4d::drawButton(uint8_t updn, int16_t x, int16_t y, int16_t w, int16_t h,
   uint16_t tcolorbgbckup = textbgcolor;
   uint16_t curxbckup = cursor_x;
   uint16_t curybckup = cursor_y;
-  RectangleFilled(x + 2, y + 2, (x + 2) + w - 4, (y + 2) + h - 4, colorb);
   uint32_t tcol = bevelColor(colorb);
   uint16_t _dark = tcol >> 16;
   uint16_t _light = tcol & 0xffff;
   tdark = _dark;
   tlight = _light;
+  if(bxStyle == 0){
+  RectangleFilled(x + 2, y + 2, (x + 2) + w - 4, (y + 2) + h - 4, colorb);
   if(updn == 0){
   Hline(x, y, w, _light);
   Hline(x + 1, y + 1, w - 2, _light);
@@ -2378,6 +2652,23 @@ void GFX4d::drawButton(uint8_t updn, int16_t x, int16_t y, int16_t w, int16_t h,
   Vline(x + w - 1, y, h, _light);
   Vline(x + w - 2, y + 1, h - 2, _light);
   }
+  }
+  if(bxStyle > 0){
+  int nh, g1, g2, gr1, gr2, nw;
+  nw = h / 10;
+  if(nw == 0) nw = 1;
+  if(bxStyle == 1){
+  nh = h / 6; g1 = -1; g2 = 0;
+  }
+  if(bxStyle > 1){ 
+  nh = h >> 1; g1 = 28; g2 = 0;
+  }
+  if(bxStyle == 3){
+  g1 = 48; g2 = 28;	  
+  }
+  if(updn == 0)gradientShape(nw, x, y, w - 1, h - 1, nh, nh, nh, nh, 0, _dark, GRADIENT_RAISED, g1, colorb, GRADIENT_RAISED, g2, 0);
+  if(updn == 1)gradientShape(nw, x, y, w - 1, h - 1, nh, nh, nh, nh, 0, _dark, GRADIENT_RAISED, 0, colorb, GRADIENT_RAISED, g2, 0);
+  }
   TextColor(tcolor, tcolor);
   Font(tfont);
   uint8_t blen = btext.length();
@@ -2392,6 +2683,10 @@ void GFX4d::drawButton(uint8_t updn, int16_t x, int16_t y, int16_t w, int16_t h,
   MoveTo(curxbckup, curybckup);
   nl = nlbckp;
   wrap = twrap;
+}
+
+void GFX4d::ButtonXstyle(byte bs){
+bxStyle = bs;
 }
 
 uint16_t GFX4d::getScrolledY(uint16_t y){
@@ -2452,6 +2747,7 @@ void GFX4d::ButtonDown(int hndl) {
   uint32_t tcol = bevelColor(colorbd);
   uint16_t _dark = tcol >> 16;
   uint16_t _light = tcol & 0xffff;
+  if(bxStyle == 0){
   Hline(x, y, w, colorbd);
   Hline(x + 1, y + 1, w - 2, colorbd);
   Vline(x, y, h, colorbd);
@@ -2460,6 +2756,19 @@ void GFX4d::ButtonDown(int hndl) {
   Hline(x + 1, y + h - 2, w - 2, colorbd);
   Vline(x + w - 1, y, h, _dark);
   Vline(x + w - 2, y + 1, h - 2, colorbd);
+  }
+  if(bxStyle > 0){ 
+  int nh, nw;
+  nw = h / 10;
+  if(nw == 0) nw = 1;
+  if(bxStyle == 1){
+  nh = h / 6;
+  }
+  if(bxStyle > 1){ 
+  nh = h >> 1;
+  }
+  gradientShape(nw, x, y, w - 1, h - 1, nh, nh, nh, nh, 0, _dark, GRADIENT_RAISED, 0, -1, -1, -1, 0);
+  }  
 }
 
 void GFX4d::ButtonUp(int hndl) {
@@ -2472,6 +2781,7 @@ void GFX4d::ButtonUp(int hndl) {
   uint32_t tcol = bevelColor(colorbu);
   uint16_t _dark = tcol >> 16;
   uint16_t _light = tcol & 0xffff;
+  if(bxStyle == 0){
   Hline(x, y, w, _light);
   Hline(x + 1, y + 1, w - 2, _light);
   Vline(x, y, h, _light);
@@ -2480,6 +2790,22 @@ void GFX4d::ButtonUp(int hndl) {
   Hline(x + 1, y + h - 2, w - 2, _dark);
   Vline(x + w - 1, y, h, _dark);
   Vline(x + w - 2, y + 1, h - 2, _dark);
+  }
+  if(bxStyle > 0){
+  int nh, g1, g2, gr1, gr2, nw;
+  nw = h / 10;
+  if(nw == 0) nw = 1;
+  if(bxStyle == 1){
+  nh = h / 6; g1 = -1; g2 = 0;
+  }
+  if(bxStyle > 1){ 
+  nh = h >> 1; g1 = 28; g2 = 0;
+  }
+  if(bxStyle == 3){
+  g1 = 48; g2 = 28;	  
+  }
+  gradientShape(nw, x, y, w - 1, h - 1, nh, nh, nh, nh, 0, _dark, GRADIENT_RAISED, g1, -1, -1, -1, 0);
+  }
   }
 }
 
@@ -2603,7 +2929,11 @@ void GFX4d::Orientation(uint8_t m) {
   case 2:
   digitalWrite(_dc, HIGH);
   digitalWrite(_cs, LOW);
+  #ifdef M5STACK
+  SPI.write(0x68);
+  #else
   SPI.write(0x48);
+  #endif
   digitalWrite(_cs, HIGH);   
   width  = GFX4d_TFTWIDTH;
   height = GFX4d_TFTHEIGHT;
@@ -2612,16 +2942,28 @@ void GFX4d::Orientation(uint8_t m) {
   case 1:
   digitalWrite(_dc, HIGH);
   digitalWrite(_cs, LOW);
-  SPI.write(0x28);
+  #ifdef M5STACK
+  SPI.write(0xA8);
+  #else
+  SPI.write(0xE8);
+  #endif
   digitalWrite(_cs, HIGH); 
   width  = GFX4d_TFTHEIGHT;
   height = GFX4d_TFTWIDTH;
+  #ifdef M5STACK
   rotation = 1;
+  #else
+  rotation = 0;
+  #endif	  
   break;
   case 3:
   digitalWrite(_dc, HIGH);
   digitalWrite(_cs, LOW);
+  #ifdef M5STACK
+  SPI.write(0xC8);
+  #else
   SPI.write(0x88);
+  #endif
   digitalWrite(_cs, HIGH); 
   width  = GFX4d_TFTWIDTH;
   height = GFX4d_TFTHEIGHT;
@@ -2630,11 +2972,19 @@ void GFX4d::Orientation(uint8_t m) {
   case 0:
   digitalWrite(_dc, HIGH);
   digitalWrite(_cs, LOW);
-  SPI.write(0xE8);
+  #ifdef M5STACK
+  SPI.write(0x08);
+  #else
+  SPI.write(0x28);
+  #endif
   digitalWrite(_cs, HIGH); 
   width  = GFX4d_TFTHEIGHT;
   height = GFX4d_TFTWIDTH;
+  #ifdef M5STACK
   rotation = 0;
+  #else
+  rotation = 1;
+  #endif
   break;
   }
   SPI.endTransaction();
@@ -3033,6 +3383,13 @@ void GFX4d::UserImageDR(uint16_t ui, int16_t uxpos, int16_t uypos, int16_t uwidt
   }
 }
 
+void GFX4d::drawChar2TWimage(uint8_t ch, uint16_t uino, int frames, int16_t uxpos, int16_t uypos, uint16_t txtcol){
+  UIDRcharOn = 1; TWcharByte = 0; TWcharBit = 6;
+  TWimageCount = ch << 4;
+  TWimageTextCol = txtcol;
+  UserImagesDR(uino, frames, uxpos - tuix[uino], uypos - tuiy[uino], 8, 16);
+}
+
 void GFX4d::UserImagesDR(uint16_t uino, int frames, int16_t uxpos, int16_t uypos, int16_t uwidth, int16_t uheight){
  if(uxpos >= width || uypos >= height || uxpos < 0 || uypos < 0) return;
   if((uxpos + uwidth - 1) < 0 || (uypos + uheight - 1) < 0) return;
@@ -3100,6 +3457,7 @@ void GFX4d::UserImagesDR(uint16_t uino, int frames, int16_t uxpos, int16_t uypos
   if(mul == 2 && pc > 0) WrGRAMs16(buf16, pc << 1);
   #endif
   ScrollEnable(setemp);
+  UIDRcharOn = 0;
 } 
 
 void GFX4d::UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, boolean draw, uint32_t bgindex) {
@@ -3425,6 +3783,8 @@ void GFX4d::WrGRAMs16232(uint16_t *data, uint16_t l) {
   digitalWrite(_cs, HIGH);
   SPI.endTransaction();
 } 
+
+
 
 void GFX4d::WrGRAMs16232NT(uint16_t *data, uint16_t l) {
   uint32_t tdw;
@@ -3968,3 +4328,264 @@ void GFX4d::SetMaxNumberSprites(uint16_t snos){
   }
   msprites = snos >> 1;
 }
+
+uint16_t GFX4d::Grad(int raisSunk, int state, int glev, int h1, int pos, uint16_t colToAdj){
+   int /*CTAr, CTAg, CTAb,*/ CTALevel, BflatMin, BflatMax;
+	uint16_t retcolor;
+	int8_t CTAr, CTAg, CTAb;
+	if(glev > 63) glev = 63;
+    pos -= (h1 >> 1);
+    if(glev == -1){
+      glev = 31;
+      BflatMax = h1 >> 2;
+      BflatMin = 0 - BflatMax;
+      if(pos > BflatMin && pos < BflatMax) pos = 0;
+      if(pos <= BflatMin) pos += BflatMax;
+      if(pos >= BflatMax) pos -= BflatMax;
+    }
+    CTALevel = (glev * pos) / h1;
+    CTAr = (colToAdj >> 11) - state;
+    CTAg = ((colToAdj >> 6) & 0x001F) - state;
+    CTAb = (colToAdj & 0x001F) - state;
+    if(!(raisSunk)) CTALevel = 0 - CTALevel;
+    CTAr += CTALevel; CTAg += CTALevel; CTAb += CTALevel;
+    CTAr = (CTAr > 0) * CTAr; CTAg = (CTAg > 0) * CTAg; CTAb = (CTAb > 0) * CTAb;
+    if(CTAr > 31) CTAr = 31;
+    if(CTAg > 31) CTAg = 31;
+    if(CTAb > 31) CTAb = 31;
+    retcolor = (CTAr << 11) | (CTAg << 6) | CTAb;
+	return retcolor;
+  }
+
+  void GFX4d::gradientShape(int ow, int xPos, int yPos, int w, int h, int r1, int r2, int r3, int r4, int darken, uint16_t color, int sr1, int gl1, uint16_t colorD, int sr3, int gl3, int gtb){
+
+    int arcn, xc1, xc2, xc3, xc4, yc1, mi, cDraw, xgxl, xgxr, tcount, tgss1, tgss2, drgs, yag, lastarc, lastow, lachk;
+    int c, xx, yy, x, y, c1, xx1, yy1, xin, y1, lasty1, sCxPos, owMin, owMax, mirror, dbl1, dbl2, gradofs, hmd, gof, owSet, rtSide;
+    int lasty, incy, incy1, maxR, mh, mw, xa, xb, xc, ya, radsMinOw, txPos, tyPos, cErase, tow, tsr1, tsr3, tgl3, tdarken, tgl1;
+    int fill, yb, Lfill, Rfill, Ldw, Rdw, Lw, Rw, mfill, start, fin, fCmp;
+    uint16_t hm, tcolorD, tcolor, tgrad;
+	radsGS[0] = r1; radsGS[1] = r2; radsGS[2] = r3; radsGS[3] = r4;
+    mh = max(radsGS[0] + radsGS[2], radsGS[1] + radsGS[3]);
+    mw = max(radsGS[0] + radsGS[1], radsGS[2] + radsGS[3]);
+    if(mh > h - 1) h = mh - 1;
+    if(mw > w - 1) w = mw - 1;
+    maxR = max(max(radsGS[0], radsGS[1]), max(radsGS[2], radsGS[3]));
+    if(maxR > MAX_ARCSIZE) return;
+    mirror = (radsGS[0] == radsGS[2] && radsGS[1] == radsGS[3]);
+    dbl1 = (radsGS[0] == radsGS[1]);
+    dbl2 = (radsGS[2] == radsGS[3]);
+    xpGSaPos[0] = radsGS[0] - 1; ypGSaPos[0] = radsGS[0] - 1; xpGSaPos[1] = w - radsGS[1]; ypGSaPos[1] = radsGS[1] - 1; xpGSaPos[2] = radsGS[2] - 1; ypGSaPos[2] = h - radsGS[2]/* - odd*/; xpGSaPos[3] = w - radsGS[3]; ypGSaPos[3] = h - radsGS[3]/* - odd*/;
+    owMin = yPos + ow; owMax = yPos + h - ow - 1;
+    if(!(lastAsize)) lastAsize = maxR;
+    if(!(keepLastArc)) memcpy(lastArcOld, inx, lastAsize << 1);
+    arcn = 0;
+    while(arcn < 4){
+      arcn += (radsGS[arcn] < 1);
+      if(arcn == 1 && dbl1 && mirror) break;
+      arcn += (arcn == 1 && dbl1);
+      if(arcn == 2 && dbl1 == 0 && mirror) break;
+      if(arcn == 3 && dbl2) break;
+      if(arcn) memset(inx, 0, radsGS[arcn] << 1);
+      incy1 = radsGS[arcn] - ow; incy = radsGS[arcn];
+      if(radsGS[arcn]){
+        radsMinOw = radsGS[arcn] - ow;
+        c = 1 - radsGS[arcn]; c1 = 1 - radsMinOw; xx = 1; xx1 = 1; yy = -2 * radsGS[arcn]; yy1 = -2 * radsMinOw; x = 0; xin = 0; y = radsGS[arcn]; y1 = radsMinOw;
+        cErase = 0;
+        while(cErase < 1 + GSErase){
+        if(GSErase){
+          if(!(cErase)){
+            txPos = xPos; tyPos = yPos; xPos = GSEraseXpos; yPos = GSEraseYpos; tow = ow; ow = 0; tcolor = color; color = GSEraseColour; tcolorD = colorD; colorD = GSEraseHeight; tsr1 = sr1; sr1 = GSERaisedSunk; tgl1 = gl1; gl1 = GSEraseGLevel; tsr3 = sr3; sr3 = -2; tgl3 = gl3; gl3 = GSErasePHeight; /*th := h; h := GSEraseHeight;*/ tdarken = darken; darken = 0;
+          }else{
+            xPos = txPos; yPos = tyPos; ow = tow; colorD = tcolorD; sr3 = tsr3; gl3 = tgl3; sr1 = tsr1; gl1 = tgl1; color = tcolor; darken = tdarken;
+          }
+        }
+        cDraw = 0;
+        tcount = radsGS[arcn];
+        if((GSCropArcLeft > -1 || GSCropArcRight > -1) && GSSsxpos != -9999) tcount = lastAsize;
+        lachk = (lastarc != radsGS[arcn] || lastow != ow);
+        while(cDraw < tcount){
+        if(x < y && lachk){
+          if(xin < y1){
+            if(c1 >= 0){
+              y1--;yy1 += 2; c1 += yy1;
+            }
+            inx[xin] = (inx[xin] & 0xFF00) | y1;
+            if(lasty1 != y1){
+              inx[incy1] = (inx[incy1] & 0xFF00) | xin; incy1 --;
+            }
+            xin++; xx1 += 2; c1 += xx1; lasty1 = y1;
+          }
+          if (c >= 0){
+            y--;yy += 2; c += yy;
+          }
+          inx[x] = (inx[x] & 0x00FF) | ((y - 1) << 8);
+          if(lasty != y){
+            inx[incy] = (inx[incy] & 0x00FF) | ((x - 1) << 8); incy --;
+          }
+          x++;xx += 2; c += xx; lasty = y;
+        }
+          xc3 = xPos + xpGSaPos[arcn];
+          xc4 = xc3;
+          xa = inx[cDraw] & 0x00FF; xb = inx[cDraw] >> 8; xc = lastArcOld[cDraw] >> 8;
+          if(arcn == 0){
+            sCxPos = xPos + xpGSaPos[0];
+            yc1 = yPos + ypGSaPos[0] - cDraw; xc1 = sCxPos - xb; xc2 = sCxPos - xa;
+            if(GSCropArcLeft > -1){
+              xc1 = xPos + GSCropArcLeft + xc;
+              if(cDraw >= lastAsize) xc1 = xPos + GSCropArcLeft;
+              xc2 = xc1;
+            }
+          }
+          if(arcn == 1 - dbl1){
+            sCxPos = xPos + xpGSaPos[1];
+            if(dbl1){
+              xc3 = sCxPos + xa; xc4 = sCxPos + xb;
+              if(GSCropArcLeft > 0 && xc2 > xc3) xc3 = xc2;
+            }else{
+              yc1 = yPos + ypGSaPos[1] - cDraw; xc2 = sCxPos + xb; xc1 = sCxPos + xa;
+              swap(xc3, xc4);
+            }
+		  }
+          if(!(mirror)){
+            if(arcn == 2){
+              sCxPos = xPos + xpGSaPos[2];
+              yc1 = yPos + ypGSaPos[2] + cDraw; xc1 = sCxPos - xb; xc2 = sCxPos - xa;
+            }
+            if(arcn == 3 - dbl2){
+              sCxPos = xPos + xpGSaPos[3];
+              if(dbl2){
+                xc3 = sCxPos + xa; xc4 = sCxPos + xb;
+              }else{
+                yc1 = yPos + ypGSaPos[3] + cDraw; xc2 = sCxPos + xb; xc1 = sCxPos + xa;
+                swap(xc3, xc4);
+              }
+            }
+          }
+          if(GSCropArcRight > -1){
+            xc3 = xPos + GSCropArcRight - xc;
+            if(cDraw >= lastAsize) xc3 = xPos + GSCropArcRight + 1;
+            xc4 = xc3;
+            if(xc3 < xc2) xc2 = xc3;
+          }
+          if(sr3 == -2){
+            hm = colorD; gradofs = gl3;
+          }else{
+            hm = h; gradofs = 0;
+          }
+          if(gtb){
+            hmd = h << 1;
+            if(gtb == 2) gof = h;
+            gradofs = h >> 1;
+            hm += (h >> 1);
+          }else{
+            hmd = h;
+          }
+          mi = 0;
+          while(mi < 1 + mirror){
+            if(mi) yc1 = yPos + (h - 1 -(yc1 - yPos));
+            ya = yc1 - yPos; owSet = (yc1 >= owMin && yc1 <= owMax); rtSide = (arcn == 1 || arcn == 3);
+            tgss1 = GSSsxpos + GSSLastSliderVal + xc + 1;
+            tgss2 = GSSsxpos + GSSLastSliderVal - xc - 1;
+            yag = ya + gradofs;
+            if(cDraw < radsGS[arcn]){
+            tgrad = Grad(sr1, darken, gl1, hm, yag, color);
+            if(ow){
+                if(sr3 > -1 && ((owSet && xc2 < xc3) || (rtSide && owSet && xc2 > xc3))) HlineD(yc1,xc2,xc3,Grad(sr3, darken, gl3, hmd, ya + gof, colorD));
+                if(xc1 < xc2) HlineD(yc1,xc1,xc2,tgrad);
+                if(!(owSet)){
+                  if((xc1 < xc4) || (rtSide && xc1 > xc4)) HlineD(yc1,xc1,xc4,tgrad);
+                }else{
+                  if(xc1 < xc2) HlineD(yc1,xc1,xc2,tgrad);
+                  if(xc3 < xc4) HlineD(yc1,xc3,xc4,tgrad);
+                }
+            }else{
+              if(xc1 < xc4) HlineD(yc1,xc1,xc4,tgrad);
+            }
+            if(GSSsxpos != -9999){
+              drgs = 0;
+              if(GSCropArcRight > -1){
+                xgxl = tgss2;
+                if(xc1 > xc4){
+                  xgxr = xc4; drgs = 1;
+                }else{
+                  if(xgxl < xc1){
+                    xgxr = xc1 - 1; drgs = 1;
+                  }
+                }
+			}
+              if(GSCropArcLeft > -1){
+                xgxl = tgss1;
+                if(xc1 > xc4){
+                  xgxr = xc1; drgs = 1;
+                }else{
+                  if(xgxl > xc4){
+                    xgxr = xc4 + 1; drgs = 1;
+                  }
+                }
+              }
+              if(drgs) HlineD(yc1, xgxl, xgxr, GSSBGColor);
+            }
+		  }else{
+              if(GSSsxpos != -9999){
+              if(GSCropArcLeft > -1){
+                xgxl = GSSsxpos + xc + GSCropArcLeft; xgxr = tgss1;
+              }
+              if(GSCropArcRight > -1){
+                xgxl = tgss2; xgxr = GSSsxpos + GSCropArcRight - xc;
+              }
+              HlineD(yc1, xgxl, xgxr, GSSBGColor);
+              }
+		  }
+            mi ++;
+		}
+        cDraw ++;
+        }
+        lastarc = radsGS[arcn]; lastow = ow;
+        cErase ++;
+        }
+      }
+    arcn ++;
+	  }
+    if(!((radsGS[0] == radsGS[1] && radsGS[2] == radsGS[3]) && (radsGS[0] == radsGS[2] && radsGS[0] + radsGS[2] >= h - 1))){
+    fin = h;
+    if(radsGS[0] == radsGS[1]) start = radsGS[0];
+    if(radsGS[2] == radsGS[3]) fin = h - radsGS[2];
+    fill = start;
+    while(fill < fin){
+      yb = yPos + fill; Lfill = xPos; Rfill = xPos + w - 1;
+      Ldw = Lfill + ow; Rdw = Rfill - ow;
+      if(fill <= ypGSaPos[0]) Lfill = (xPos + xpGSaPos[0]) * (!dbl1);
+      if(fill <= ypGSaPos[1]) Rfill = (xPos + xpGSaPos[1]) * (!dbl1);
+      if(fill >= ypGSaPos[2]) Lfill = (xPos + xpGSaPos[2]) * (!dbl2);
+      if(fill >= ypGSaPos[3]) Rfill = (xPos + xpGSaPos[3]) * (!dbl2);
+      Lw = ow - 1; Rw = ow - 1;
+      if(Lfill > Ldw) Lw = 0;
+      if(Rfill < Rdw) Rw = 0;
+      mfill = fill + gradofs;
+      fCmp = (Lfill < Rfill);
+      tgrad = Grad(sr1, darken, gl1, hm, mfill, color);
+      if(ow > 0){
+        if(yb >= owMin && yb <= owMax){
+          if(fCmp && Lfill <= Ldw) HlineD(yb, Lfill, Lfill + Lw,tgrad);
+          if(fCmp && sr3 > -1) HlineD(yb, Lfill + Lw + 1, Rfill - Rw,Grad(sr3, darken, gl3, hm, mfill, colorD));
+          if(fCmp && Rfill >= Rdw) HlineD(yb, Rfill - Rw, Rfill,tgrad);
+        }else{
+          if(fCmp)HlineD(yb, Lfill, Rfill,tgrad);
+        }
+      }else{
+        if(fCmp)HlineD(yb, Lfill, Rfill,tgrad);
+      }
+    fill ++;
+    }
+    }
+    GSCropArcLeft = -1; GSCropArcRight = -1; keepLastArc = 0; GSErase = 0; GSSsxpos = -9999; GSSArconly = 0;
+    if(!(protectLA)) lastAsize = maxR;
+    protectLA = 0;
+    yield();
+}
+
+    void GFX4d::HlineD(int y, int x1, int x2, uint16_t color){
+      if(x1 > x2) swap(x1, x2);
+	  Hline(x1, y, x2 - x1 + 1, color);
+    }  
+
