@@ -184,8 +184,8 @@
 //#include <SDFS.h>
 #include <SD.h>
 #else
-#define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
-#include <FS.h> //spiff file system
+//#define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
+#include <LittleFS.h> //spiff file system
 #endif
 #ifdef ESP32
 #define M5STACK
@@ -287,6 +287,7 @@
 #define  SLIDER_RAISED	 0
 #define  SLIDER_SUNKEN	 1
 #define  NOTOUCH         0
+#define  T_SENSE         10
 #define  TOUCH_PRESSED   1
 #define  TOUCH_RELEASED  2
 #define  TOUCH_STATUS    0
@@ -1015,6 +1016,7 @@ public:
            //gradofs;
   uint16_t lastArcOld[MAX_ARCSIZE],
            inx[MAX_ARCSIZE];
+  boolean  sdok;
 
 protected:
   
@@ -1114,7 +1116,7 @@ protected:
            twframe,
            butchnge,
            dlok,
-           sdok,
+           //sdok,
            gciobjtouchenable[MAX_WIDGETS],
            scrolled,
            nl,

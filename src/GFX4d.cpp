@@ -198,7 +198,8 @@
 #endif
 
 #ifdef USE_FS
-#include <FS.h>
+//#include <FS.h>
+#include "LittleFS.h"
 #endif
 
 GFX4d::GFX4d(){
@@ -324,19 +325,22 @@ void GFX4d::begin(void) {
   #endif
   Cls(0);
   #ifndef USE_FS
-  #ifndef ESP32
+  //#ifndef ESP32
   //#ifdef SDFS_H
   if(SD.begin(_sd, spiSettings)){
   //#else
   //if(SD.begin(_sd, 79000000)){
   //#endif
+  //#else
+  //if(SD.begin(_sd, SPI, 79000000)){
+  //#endif
   #else
-  if(SD.begin(_sd, SPI, 79000000)){
-  #endif
-  #else
-  if(SPIFFS.begin()){
+  if(LittleFS.begin()){
+  //if(SPIFFS.begin()){
   #endif
   sdok = true;
+  //print("FS Ok");
+  //delay(1000);
   } else {
   sdok = false;
   }
@@ -1049,7 +1053,7 @@ void GFX4d::PrintImageFile(String ifile){
   #ifndef USE_FS
   dataFile = SD.open(ifile);
   #else
-  dataFile = SPIFFS.open((char*)ifile.c_str(), "r");
+  dataFile = LittleFS.open((char*)ifile.c_str(), "r");
   #endif
   if(!dataFile){
   return;
@@ -1214,22 +1218,22 @@ void GFX4d::Open4dGFX(String file4d){
   gciobjnum = 0;
   imageTouchEnable(-1, false);
   String inputString;
-  #ifndef ESP32
-  dat4d = file4d + ".dat";
-  gci4d = file4d + ".gci";
-  #else
-  #ifndef USE_FS  
-  dat4d = "/" + file4d + ".dat";
-  gci4d = "/" + file4d + ".gci";	  
-  #else
+  //#ifndef ESP32
+  //dat4d = file4d + ".dat";
+  //gci4d = file4d + ".gci";
+  //#else
+  //#ifndef USE_FS  
+  //dat4d = "/" + file4d + ".dat";
+  //gci4d = "/" + file4d + ".gci";	  
+  //#else
   dat4d = file4d + ".dat";
   gci4d = file4d + ".gci";	  
-  #endif
-  #endif
+  //#endif
+  //#endif
   #ifndef USE_FS
   userDat = SD.open(dat4d);
   #else
-  userDat = SPIFFS.open((char*)dat4d.c_str(), "r");
+  userDat = LittleFS.open((char*)dat4d.c_str(), "r");
   #endif
   if(userDat){
   char c;
@@ -1264,7 +1268,7 @@ void GFX4d::Open4dGFX(String file4d){
   #ifndef USE_FS
   userImag = SD.open(gci4d);
   #else
-  userImag = SPIFFS.open((char*)gci4d.c_str(), "r");
+  userImag = LittleFS.open((char*)gci4d.c_str(), "r");
   #endif
   uint32_t tIndex;
   int coldepth;
@@ -3044,7 +3048,7 @@ void GFX4d::touch_Set(uint8_t mode) {
   #else
   SPI.beginTransaction(spiSettingsT32);
   #endif
-  if(mode == TOUCH_DISABLE){
+  //if(mode == TOUCH_DISABLE){
   tchen = false;
   digitalWrite(_tcs, LOW);
   delayMicroseconds(50);
@@ -3059,10 +3063,40 @@ void GFX4d::touch_Set(uint8_t mode) {
   delayMicroseconds(50);
   }
   digitalWrite(_tcs, HIGH);
-  }
+  //}
   if(mode == TOUCH_ENABLE){
   tchen = true;
   digitalWrite(_tcs, LOW);
+  SPI.write(0x55);
+  delayMicroseconds(50);
+  SPI.write(0x01);
+  delayMicroseconds(50);
+  SPI.write(0x22);
+  for(int s = 0; s < 5; s++){
+  dat = SPI.transfer(0);
+  delayMicroseconds(50);  
+  }
+  SPI.write(0x55);
+  delayMicroseconds(50);
+  SPI.write(0x05);
+  delayMicroseconds(50);
+  SPI.write(0x21);
+  delayMicroseconds(50);
+  SPI.write(0x00);
+  delayMicroseconds(50);
+  SPI.write(dat + 0x03);
+  delayMicroseconds(50);
+  SPI.write(0x01);
+  delayMicroseconds(50);
+  SPI.write(T_SENSE);
+  delayMicroseconds(50);
+  for(int s = 0; s < 4; s++){
+  dat = SPI.transfer(0);
+  delayMicroseconds(50);  
+  }
+//delayMicroseconds(50);
+//SPI.write(T_SENSE);
+  delayMicroseconds(50);
   SPI.write(0x55);
   delayMicroseconds(50);
   SPI.write(0x01);
@@ -3592,10 +3626,10 @@ void GFX4d::Download(String Address, uint16_t port, String hfile, String Fname, 
   }
   Dwnload = SD.open((char*)Fname.c_str(), FILE_WRITE);
   #else
-  if(SPIFFS.exists((char*)Fname.c_str())) {
-  SPIFFS.remove((char*)Fname.c_str());
+  if(LittleFS.exists((char*)Fname.c_str())) {
+  LittleFS.remove((char*)Fname.c_str());
   }
-  Dwnload = SPIFFS.open((char*)Fname.c_str(), "w");
+  Dwnload = LittleFS.open((char*)Fname.c_str(), "w");
   #endif
   int32_t lens = http.getSize();
   if(lens == 0){
