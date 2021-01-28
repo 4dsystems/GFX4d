@@ -1,7 +1,7 @@
 ![image](http://www.4dsystems.com.au/downloads/4DLogo.png)
 
 # GFX4d
-================================================================================
+============================================================================
 
 Graphics Library for the gen4-IoD by 4D Systems
 
@@ -20,6 +20,8 @@ Arduino allows installation of third-party platform packages using Boards Manage
 
 ## Installation of this GFX4d Library
 
+This GFX4d Library can be found and installed from the Arduino Library Manager, inside the Arduino IDE. 
+Or it can be installed manually from this github repository.
 Library folder should be placed in the ```C:\Users\(User name)\My Documents\Arduino\Libraries\``` folder, or equivalent. (restart the IDE if already open).
 
 For more information on the installation, please refer to [Installing Additional Arduino Libraries](http://arduino.cc/en/Guide/Libraries)
@@ -33,5 +35,6 @@ For detailed information on the gen4-IoD's and procedures for installation, plea
 
 Please sign up for our Forum and ask a question there, or submit a Tech Support Ticket from our website.
 http://forum.4dsystems.com.au or http://www.4dsystems.com.au/support
+
 You can also submit issues via Github if desired. 
 
