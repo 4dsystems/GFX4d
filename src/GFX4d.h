@@ -177,7 +177,11 @@
 
 #ifndef _GFX4d_H
 #define _GFX4d_H
-//#define USE_FS
+// #define USE_FS
+#define IPS_DISPLAY		1
+#define TN_DISPLAY		0
+#define SD_FILESYSTEM	0
+#define LFS_FILESYSTEM	2
 #include "Arduino.h"
 #include "Print.h"
 #ifndef USE_FS
@@ -186,25 +190,6 @@
 #else
 //#define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
 #include <LittleFS.h> //spiff file system
-#endif
-#ifdef ESP32
-#define M5STACK
-#endif
-#ifdef M5STACK
-// Buttons
-  #define BTN_A 0
-  #define BTN_B 1
-  #define BTN_C 2
-  #define BUTTON_A 0
-  #define BUTTON_B 1
-  #define BUTTON_C 2
-  #define BUTTON_A_PIN 39
-  #define BUTTON_B_PIN 38
-  #define BUTTON_C_PIN 37
-
-  // BEEP PIN
-  #define SPEAKER_PIN 25
-  #define TONE_PIN_CHANNEL 0
 #endif
 
 #define MAX_WIDGETS	       400
@@ -761,6 +746,7 @@ fs::File userDat;
 GFX4d();
 
   void     begin(void),
+		   begin(byte a),
            setGRAM(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1),
            WrGRAM(uint32_t color),
            WrGRAMs(uint32_t *data, uint16_t l),
@@ -986,6 +972,7 @@ private:
   int8_t   lastfsh;
   int8_t   lastfsw;
   int8_t   _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd, _sRes;
+  boolean  IPSDisplay = false;
 
 public:
   int16_t  //lastArcOld[max_ARCSIZE],

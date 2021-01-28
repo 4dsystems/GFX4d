@@ -32,5 +32,6 @@ For detailed information on the gen4-IoD's and procedures for installation, plea
 ## Questions/Issues?
 
 Please sign up for our Forum and ask a question there, or submit a Tech Support Ticket from our website.
-Please do NOT post issues on Github, as this is not actively monitored. Please use one of the following:
 http://forum.4dsystems.com.au or http://www.4dsystems.com.au/support
+You can also submit issues via Github if desired. 
+

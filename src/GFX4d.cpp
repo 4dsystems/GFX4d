@@ -212,14 +212,14 @@ GFX4d::GFX4d(){
     _tcs  = 2;
     _sd   = 5;
     #else
-    _dc   = 27; //m5stack
-    _cs   = 14; //m5stack
-	_sRes = 33; //m5stack
+    _dc   = 27; 
+    _cs   = 14; 
+	_sRes = 33; 
 	//_dc   = 33;
     //_cs   = 27;
     _disp = 32;
     _tcs  = 9;
-    _sd   = 4; //m5stack
+    _sd   = 4; 
 	//_sd   = 10;
     #endif
     scrollOffset = 0;
@@ -243,19 +243,23 @@ GFX4d::GFX4d(){
     twcurson  = true;
     
 }
-#ifdef M5STACK
-SPISettings spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
-SPISettings spiSettingsD = SPISettings(79000000, MSBFIRST, SPI_MODE0);
-#else
+
 SPISettings spiSettings = SPISettings(79000000, MSBFIRST, SPI_MODE0);
 SPISettings spiSettingsD = SPISettings(79000000, MSBFIRST, SPI_MODE0);
 SPISettings spiSettingsR = SPISettings(39000000, MSBFIRST, SPI_MODE0);
-#endif
 SPISettings spiSettingsT = SPISettings(6900000, MSBFIRST, SPI_MODE0);
 SPISettings spiSettingsT32 = SPISettings(4900000, MSBFIRST, SPI_MODE0);
  
-void GFX4d::begin(void) {
 
+
+
+void GFX4d::begin(byte dtds) {
+  if(dtds & 0x01) IPSDisplay = true;	
+  begin();  
+}
+
+void GFX4d::begin(void) {
+  
   pinMode(_sclk, OUTPUT);
   pinMode(_mosi, OUTPUT);
   pinMode(_miso, INPUT);
@@ -280,39 +284,46 @@ void GFX4d::begin(void) {
   SPI.begin();
   SPI.beginTransaction(spiSettingsD);
 
-  SetCommand(0xEF); SetData(0x03); SetData(0x80); SetData(0x02);
-  SetCommand(0xCF); SetData(0x00); SetData(0XC1); SetData(0X30); 
-  SetCommand(0xED); SetData(0x64); SetData(0x03); SetData(0X12); SetData(0X81); 
-  SetCommand(0xE8); SetData(0x85); SetData(0x00); SetData(0x78); 
+  SetCommand(0xEF); SetData(0x01); SetData(0x01); SetData(0x00);
+  SetCommand(0xCF); SetData(0x00); SetData(0xC1); SetData(0x30); 
+  SetCommand(0xED); SetData(0x64); SetData(0x03); SetData(0x12); SetData(0x81); 
+  SetCommand(0xE8); SetData(0x85); SetData(0x00); SetData(0x7a); 
   SetCommand(0xCB); SetData(0x39); SetData(0x2C); SetData(0x00); SetData(0x34); SetData(0x02); 
   SetCommand(0xF7); SetData(0x20); 
   SetCommand(0xEA); SetData(0x00); SetData(0x00); 
-  SetCommand(GFX4d_PWCTR1); SetData(0x23);
-  SetCommand(GFX4d_PWCTR2); SetData(0x10);
-  SetCommand(GFX4d_VMCTR1); SetData(0x3e); SetData(0x28); 
-  SetCommand(GFX4d_VMCTR2); SetData(0x86);
-  #ifdef M5STACK
-  SetCommand(GFX4d_MADCTL); SetData(0xA8);
-  #else
+  if(!(IPSDisplay)){
+  SetCommand(GFX4d_PWCTR1); SetData(0x26);
+  }else{
+  SetCommand(GFX4d_PWCTR1); SetData(0x12); SetData(0x12);
+  }
+  SetCommand(GFX4d_PWCTR2); SetData(0x11);  
+  SetCommand(GFX4d_VMCTR1); SetData(0x39); SetData(0x27); 
+  SetCommand(GFX4d_VMCTR2); SetData(0xa6);
   SetCommand(GFX4d_MADCTL); SetData(0x48);
-  #endif
   SetCommand(GFX4d_PIXFMT); SetData(0x55); 
-  #ifdef M5STACK
-  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x13);   
-  #else
-  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x18);
-  #endif 
+  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x1b);
   SetCommand(GFX4d_DFUNCTR); SetData(0x08); SetData(0x82); SetData(0x27);  
   SetCommand(0xF2); SetData(0x00); 
   SetCommand(GFX4d_GAMMASET); SetData(0x01); 
-  SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x31); SetData(0x2B); SetData(0x0C); 
-                             SetData(0x0E); SetData(0x08); SetData(0x4E); SetData(0xF1); 
+  if(!(IPSDisplay)){
+  SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x2d); SetData(0x0e); SetData(0x08); 
+                             SetData(0x12); SetData(0x0a); SetData(0x3d); SetData(0x95); 
+                             SetData(0x31); SetData(0x04); SetData(0x10); SetData(0x09); 
+                             SetData(0x09); SetData(0x0d); SetData(0x00);
+  SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x12); SetData(0x17); SetData(0x03); 
+                             SetData(0x0d); SetData(0x05); SetData(0x2c); SetData(0x44); 
+                             SetData(0x41); SetData(0x05); SetData(0x0F); SetData(0x0a); 
+                             SetData(0x30); SetData(0x32); SetData(0x0F); 							 
+  }else{
+  SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x31); SetData(0x2b); SetData(0x0c); 
+                             SetData(0x0e); SetData(0x08); SetData(0x4e); SetData(0xf1); 
                              SetData(0x37); SetData(0x07); SetData(0x10); SetData(0x03); 
-                             SetData(0x0E); SetData(0x09); SetData(0x00); 
-  SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x0E); SetData(0x14); SetData(0x03); 
-                             SetData(0x11); SetData(0x07); SetData(0x31); SetData(0xC1); 
-                             SetData(0x48); SetData(0x08); SetData(0x0F); SetData(0x0C); 
-                             SetData(0x31); SetData(0x36); SetData(0x0F); 
+                             SetData(0x0e); SetData(0x09); SetData(0x00);
+  SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x0e); SetData(0x14); SetData(0x03); 
+                             SetData(0x11); SetData(0x07); SetData(0x31); SetData(0xc1); 
+                             SetData(0x48); SetData(0x08); SetData(0x0f); SetData(0x0c); 
+                             SetData(0x31); SetData(0x36); SetData(0x0F); 								 
+  }
   SetCommand(GFX4d_SLPOUT);
   SPI.endTransaction();  
   delay(120);     
@@ -320,9 +331,7 @@ void GFX4d::begin(void) {
   SetCommand(GFX4d_DISPON);
   SPI.endTransaction();
   setScrollArea(0, 0);
-  #ifdef M5STACK
-  Invert(true);
-  #endif
+  if(IPSDisplay) Invert(false);
   Cls(0);
   #ifndef USE_FS
   //#ifndef ESP32
@@ -2997,9 +3006,17 @@ void GFX4d::Orientation(uint8_t m) {
 void GFX4d::Invert(boolean i) {
   SPI.beginTransaction(spiSettingsD);  
   if(i){
+  if(IPSDisplay){
+  SetCommand(GFX4d_INVOFF);
+  } else {
+  SetCommand(GFX4d_INVON);
+  }  
+  } else {
+  if(IPSDisplay){
   SetCommand(GFX4d_INVON);
   } else {
   SetCommand(GFX4d_INVOFF);
+  }  
   }
   SPI.endTransaction();  
 }
