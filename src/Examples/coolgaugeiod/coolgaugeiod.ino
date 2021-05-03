@@ -3,14 +3,10 @@
 //     the next time the .4Dino file is built
 //
 /**************************************************************
-* Coolgauge IoD                                               *
 * A Demo to show the use of gfx.UserImagesDR to speed up      *
 * UserImages drawing by only drawing the part of the images   *
 * that will have changed. The code is larger but the increase *
 * in speed is up to 200%                                      *
-* Files in the SDCardFiles folder need to be copied on to the *
-* IoD SD card.                                                *
-* This project can also be opened in Workshop 4.              *
 **************************************************************/
 
 #include "ESP8266WiFi.h"
@@ -43,6 +39,7 @@ void setup()
   gfx.UserImages(iCoolgauge1,0) ;  // Coolgauge1 show initialy, if required
   gfx.UserImages(iSlider1,0) ; // Slider1 show initialy, if required
   gfx.imageTouchEnable(iSlider1, true); // Enable touch detection for iSlider1
+  gfx.touch_Set(TOUCH_ENABLE);
 } // end Setup **do not alter, remove or duplicate this line**
 
 void loop()

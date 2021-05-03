@@ -43,6 +43,7 @@ void setup()
   gfx.Buttonx(33, 14, 282, 64, 22, SILVER, "START", 1, BLACK);
   gfx.Buttonx(34, 86, 282, 64, 22, SILVER, "STOP", 1, BLACK);
   gfx.Buttonx(35, 158, 282, 64, 22, SILVER, "REVERSE", 1, BLACK);
+  gfx.touch_Set(TOUCH_ENABLE);
 } // end Setup **do not alter, remove or duplicate this line**
 
 void loop()
