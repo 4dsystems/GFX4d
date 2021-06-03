@@ -2,7 +2,7 @@
 *                                                                          *
    4D Systems GFX4d Library
 *                                                                          *
-   Date:        4th May 2021
+   Date:        4th June 2021
 *                                                                          *
    Description: Provides Graphics, Touch Control and SD Card functions
                 for 4D Systems Gen4 IoD range of intelligent displays.
@@ -183,12 +183,19 @@
 #include "Arduino.h"
 #include "Print.h"
 #ifndef USE_FS
-//#include <SDFS.h>
-#include <SD.h>
+  //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+  //  #include "SdFat.h"
+  //  #include "sdios.h"
+  //#else
+    #include <SD.h>
+  //#endif
 #else
 //#define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
 #include <LittleFS.h> //spiff file system
 #endif
+
+
+#define SD_CONFIG SdSpiConfig(5, SHARED_SPI, SPI_CLOCK)
 
 #define MAX_WIDGETS	       400
 
