@@ -1093,7 +1093,7 @@ void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int
 void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
   int16_t i, k, lb;
-  int32_t l;
+  int64_t l;
   l = 1;
   for (i = 1; i < Digits; i++)
     l *= 10;
