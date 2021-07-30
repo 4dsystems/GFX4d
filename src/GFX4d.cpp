@@ -1042,14 +1042,15 @@ void GFX4d::UserImage(uint16_t ui, int altx, int alty)
   ScrollEnable(setemp);
 }
 
-void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
 {
   LedDigitsDisplaySigned(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
 }
 
-void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
-  int16_t i, m, lstb, nv, digita[7];
+  int16_t i, m, lstb, digita[7];
+  int64_t nv;
   int leftpos = 0;
   nv = newval ;
   lstb = 1 ;
@@ -1085,15 +1086,15 @@ void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digit
   }
 }
 
-void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+void GFX4d::LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
 {
   LedDigitsDisplay(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
 }
 
-void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+void GFX4d::LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
   int16_t i, k, lb;
-  int32_t l;
+  int64_t l;
   l = 1;
   for (i = 1; i < Digits; i++)
     l *= 10;
