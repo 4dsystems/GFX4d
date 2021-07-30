@@ -2,7 +2,7 @@
 *                                                                          *
    4D Systems GFX4d Library
 *                                                                          *
-   Date:        4th June 2021
+   Date:        30th August 2021
 *                                                                          *
    Description: Provides Graphics, Touch Control and SD Card functions
                 for 4D Systems Gen4 IoD range of intelligent displays.
