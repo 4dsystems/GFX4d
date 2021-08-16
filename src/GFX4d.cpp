@@ -1,52 +1,52 @@
 /***************************************************************************
 *                                                                          *
-   4D Systems GFX4d Library
+*  4D Systems GFX4d Library                                                *
 *                                                                          *
-   Date:        30th August 2021
+*  Date:        16th August 2021                                           *
 *                                                                          *
-   Description: Provides Graphics, Touch Control and SD Card functions
-                for 4D Systems Gen4 IoD range of intelligent displays.
+*  Description: Provides Graphics, Touch Control and SD Card functions     *
+*               for 4D Systems Gen4 IoD range of intelligent displays.     *
 *                                                                          *
-                    GNU LESSER GENERAL PUBLIC LICENSE
-                        Version 3, 29 June 2007
+*                   GNU LESSER GENERAL PUBLIC LICENSE                      *
+*                       Version 3, 29 June 2007                            *
 *                                                                          *
-  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
-  Everyone is permitted to copy and distribute verbatim copies
-  of this license document, but changing it is not allowed.
+* Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>      *
+* Everyone is permitted to copy and distribute verbatim copies             *
+* of this license document, but changing it is not allowed.                *
 *                                                                          *
 *                                                                          *
-  This version of the GNU Lesser General Public License incorporates
-  the terms and conditions of version 3 of the GNU General Public
-  License, supplemented by the additional permissions listed below.
+* This version of the GNU Lesser General Public License incorporates       *
+* the terms and conditions of version 3 of the GNU General Public          *
+* License, supplemented by the additional permissions listed below.        *
 *                                                                          *
-   0. Additional Definitions.
+*  0. Additional Definitions.                                              *
 *                                                                          *
-    As used herein, "this License" refers to version 3 of the GNU Lesser
-  General Public License, and the "GNU GPL" refers to version 3 of the GNU
-  General Public License.
+*   As used herein, "this License" refers to version 3 of the GNU Lesser   *
+* General Public License, and the "GNU GPL" refers to version 3 of the GNU *
+* General Public License.                                                  *
 *                                                                          *
-    "The Library" refers to a covered work governed by this License,
-  other than an Application or a Combined Work as defined below.
+*   "The Library" refers to a covered work governed by this License,       *
+* other than an Application or a Combined Work as defined below.           *
 *                                                                          *
-    An "Application" is any work that makes use of an interface provided
-  by the Library, but which is not otherwise based on the Library.
-  Defining a subclass of a class defined by the Library is deemed a mode
-  of using an interface provided by the Library.
+*   An "Application" is any work that makes use of an interface provided   *
+* by the Library, but which is not otherwise based on the Library.         *
+* Defining a subclass of a class defined by the Library is deemed a mode   *
+* of using an interface provided by the Library.                           *
 *                                                                          *
-    A "Combined Work" is a work produced by combining or linking an
-  Application with the Library.  The particular version of the Library
-  with which the Combined Work was made is also called the "Linked
-  Version".
+*   A "Combined Work" is a work produced by combining or linking an        *
+* Application with the Library.  The particular version of the Library     *
+* with which the Combined Work was made is also called the "Linked         *
+* Version".                                                                *
 *                                                                          *
-    The "Minimal Corresponding Source" for a Combined Work means the
-  Corresponding Source for the Combined Work, excluding any source code
-  for portions of the Combined Work that, considered in isolation, are
-  based on the Application, and not on the Linked Version.
+*   The "Minimal Corresponding Source" for a Combined Work means the       *
+* Corresponding Source for the Combined Work, excluding any source code    *
+* for portions of the Combined Work that, considered in isolation, are     *
+* based on the Application, and not on the Linked Version.                 *
 *                                                                          *
-    The "Corresponding Application Code" for a Combined Work means the
-  object code and/or source code for the Application, including any data
-  and utility programs needed for reproducing the Combined Work from the
-  Application, but excluding the System Libraries of the Combined Work.
+*   The "Corresponding Application Code" for a Combined Work means the     *
+* object code and/or source code for the Application, including any data   *
+* and utility programs needed for reproducing the Combined Work from the   *
+* Application, but excluding the System Libraries of the Combined Work.    *
 *                                                                          *
    1. Exception to Section 3 of the GNU GPL.
 *                                                                          *
@@ -205,7 +205,6 @@
 #endif
 
 #ifdef USE_FS
-//#include <FS.h>
 #include "LittleFS.h"
 #endif
 
@@ -223,12 +222,9 @@ GFX4d::GFX4d()
   _dc   = 27;
   _cs   = 14;
   _sRes = 33;
-  //_dc   = 33;
-  //_cs   = 27;
   _disp = 32;
   _tcs  = 9;
   _sd   = 4;
-  //_sd   = 10;
 #endif
   scrollOffset = 0;
   width    = 240;
@@ -264,6 +260,7 @@ SPISettings spiSettingsT32 = SPISettings(4900000, MSBFIRST, SPI_MODE0);
 void GFX4d::begin(byte dtds)
 {
   if (dtds & 0x01) IPSDisplay = true;
+  if (dtds & 0x02) ST7789 = true;
   begin();
 }
 
@@ -292,67 +289,109 @@ void GFX4d::begin(void)
   digitalWrite(_sd, HIGH);
   digitalWrite(_tcs, HIGH);
   SPI.begin();
-  SPI.beginTransaction(spiSettingsD);
-
-  SetCommand(0xEF); SetData(0x01); SetData(0x01); SetData(0x00);
-  SetCommand(0xCF); SetData(0x00); SetData(0xC1); SetData(0x30);
-  SetCommand(0xED); SetData(0x64); SetData(0x03); SetData(0x12); SetData(0x81);
-  SetCommand(0xE8); SetData(0x85); SetData(0x00); SetData(0x7a);
-  SetCommand(0xCB); SetData(0x39); SetData(0x2C); SetData(0x00); SetData(0x34); SetData(0x02);
-  SetCommand(0xF7); SetData(0x20);
-  SetCommand(0xEA); SetData(0x00); SetData(0x00);
-  if (!(IPSDisplay))
-  {
-    SetCommand(GFX4d_PWCTR1); SetData(0x26);
+  SPI.beginTransaction(spiSettingsR);
+  int regcount;
+  for(regcount = 0; regcount < 4; regcount ++){
+	dispID[regcount] = ReadCommand(0xD3, regcount);
   }
-  else
-  {
-    SetCommand(GFX4d_PWCTR1); SetData(0x12); SetData(0x12);
-  }
-  SetCommand(GFX4d_PWCTR2); SetData(0x11);
-  SetCommand(GFX4d_VMCTR1); SetData(0x39); SetData(0x27);
-  SetCommand(GFX4d_VMCTR2); SetData(0xa6);
-  SetCommand(GFX4d_MADCTL); SetData(0x48);
-  SetCommand(GFX4d_PIXFMT); SetData(0x55);
-  SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x1b);
-  SetCommand(GFX4d_DFUNCTR); SetData(0x08); SetData(0x82); SetData(0x27);
-  SetCommand(0xF2); SetData(0x00);
-  SetCommand(GFX4d_GAMMASET); SetData(0x01);
-  if (!(IPSDisplay))
-  {
-    SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x2d); SetData(0x0e); SetData(0x08);
-    SetData(0x12); SetData(0x0a); SetData(0x3d); SetData(0x95);
-    SetData(0x31); SetData(0x04); SetData(0x10); SetData(0x09);
-    SetData(0x09); SetData(0x0d); SetData(0x00);
-    SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x12); SetData(0x17); SetData(0x03);
-    SetData(0x0d); SetData(0x05); SetData(0x2c); SetData(0x44);
-    SetData(0x41); SetData(0x05); SetData(0x0F); SetData(0x0a);
-    SetData(0x30); SetData(0x32); SetData(0x0F);
-  }
-  else
-  {
-    SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x31); SetData(0x2b); SetData(0x0c);
-    SetData(0x0e); SetData(0x08); SetData(0x4e); SetData(0xf1);
-    SetData(0x37); SetData(0x07); SetData(0x10); SetData(0x03);
-    SetData(0x0e); SetData(0x09); SetData(0x00);
-    SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x0e); SetData(0x14); SetData(0x03);
-    SetData(0x11); SetData(0x07); SetData(0x31); SetData(0xc1);
-    SetData(0x48); SetData(0x08); SetData(0x0f); SetData(0x0c);
-    SetData(0x31); SetData(0x36); SetData(0x0F);
-  }
-  SetCommand(GFX4d_SLPOUT);
   SPI.endTransaction();
-  delay(120);
+  if(dispID[2] == 147 && dispID[3] == 65){
+	ST7789 = false;
+  } else {
+    ST7789 = true;
+  }
   SPI.beginTransaction(spiSettingsD);
-  SetCommand(GFX4d_DISPON);
-  SPI.endTransaction();
-  setScrollArea(0, 0);
+  if(!(ST7789)){
+    SetCommand(0xEF); SetData(0x01); SetData(0x01); SetData(0x00);
+    SetCommand(0xCF); SetData(0x00); SetData(0xC1); SetData(0x30);
+    SetCommand(0xED); SetData(0x64); SetData(0x03); SetData(0x12); SetData(0x81);
+    SetCommand(0xE8); SetData(0x85); SetData(0x00); SetData(0x7a);
+    SetCommand(0xCB); SetData(0x39); SetData(0x2C); SetData(0x00); SetData(0x34); SetData(0x02);
+    SetCommand(0xF7); SetData(0x20);
+    SetCommand(0xEA); SetData(0x00); SetData(0x00);
+    if (!(IPSDisplay))
+    {
+      SetCommand(GFX4d_PWCTR1); SetData(0x26);
+    }
+    else
+    {
+      SetCommand(GFX4d_PWCTR1); SetData(0x12); SetData(0x12);
+    }
+    SetCommand(GFX4d_PWCTR2); SetData(0x11);
+    SetCommand(GFX4d_VMCTR1); SetData(0x39); SetData(0x27);
+    SetCommand(GFX4d_VMCTR2); SetData(0xa6);
+    SetCommand(GFX4d_MADCTL); SetData(0x48);
+    SetCommand(GFX4d_PIXFMT); SetData(0x55);
+    SetCommand(GFX4d_FRMCTR1); SetData(0x00); SetData(0x1b);
+    SetCommand(GFX4d_DFUNCTR); SetData(0x08); SetData(0x82); SetData(0x27);
+    SetCommand(0xF2); SetData(0x00);
+    SetCommand(GFX4d_GAMMASET); SetData(0x01);
+    if (!(IPSDisplay))
+    {
+      SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x2d); SetData(0x0e); SetData(0x08);
+      SetData(0x12); SetData(0x0a); SetData(0x3d); SetData(0x95);
+      SetData(0x31); SetData(0x04); SetData(0x10); SetData(0x09);
+      SetData(0x09); SetData(0x0d); SetData(0x00);
+      SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x12); SetData(0x17); SetData(0x03);
+      SetData(0x0d); SetData(0x05); SetData(0x2c); SetData(0x44);
+      SetData(0x41); SetData(0x05); SetData(0x0F); SetData(0x0a);
+      SetData(0x30); SetData(0x32); SetData(0x0F);
+    }
+    else
+    {
+      SetCommand(GFX4d_GMCTRP1); SetData(0x0F); SetData(0x31); SetData(0x2b); SetData(0x0c);
+      SetData(0x0e); SetData(0x08); SetData(0x4e); SetData(0xf1);
+      SetData(0x37); SetData(0x07); SetData(0x10); SetData(0x03);
+      SetData(0x0e); SetData(0x09); SetData(0x00);
+      SetCommand(GFX4d_GMCTRN1); SetData(0x00); SetData(0x0e); SetData(0x14); SetData(0x03);
+      SetData(0x11); SetData(0x07); SetData(0x31); SetData(0xc1);
+      SetData(0x48); SetData(0x08); SetData(0x0f); SetData(0x0c);
+      SetData(0x31); SetData(0x36); SetData(0x0F);
+    }
+    SetCommand(GFX4d_SLPOUT);
+    SPI.endTransaction();
+    delay(120);
+    SPI.beginTransaction(spiSettingsD);
+    SetCommand(GFX4d_DISPON);
+    SPI.endTransaction();
+    setScrollArea(0, 0);
+  } else {
+    SetCommand(GFX4DST_SLPOUT);   // Sleep out
+    delay(120);
+    SetCommand(GFX4DST_NORON);    // Normal display mode on
+    SetCommand(GFX4DST_MADCTL);
+    SetData(TFT_MAD_COLOR_ORDER);
+    SetCommand(0xB6); SetData(0x0A); SetData(0x82);
+    SetCommand(GFX4DST_COLMOD); SetData(0x55);
+    delay(10);
+    SetCommand(GFX4DST_PORCTRL); SetData(0x0c); SetData(0x0c); SetData(0x00); SetData(0x33); SetData(0x33);
+    SetCommand(GFX4DST_GCTRL); SetData(0x35);
+    SetCommand(GFX4DST_VCOMS); SetData(0x28);
+    SetCommand(GFX4DST_LCMCTRL); SetData(0x0C);
+    SetCommand(GFX4DST_VDVVRHEN); SetData(0x01); SetData(0xFF);
+    SetCommand(GFX4DST_VRHS); SetData(0x10);
+    SetCommand(GFX4DST_VDVSET); SetData(0x20);
+    SetCommand(GFX4DST_FRCTR2); SetData(0x0f);
+    SetCommand(GFX4DST_PWCTRL1); SetData(0xa4); SetData(0xa1);
+    SetCommand(GFX4DST_PVGAMCTRL); SetData(0xd0); SetData(0x00); SetData(0x02); SetData(0x07);
+    SetData(0x0a); SetData(0x28); SetData(0x32); SetData(0x44); SetData(0x42); SetData(0x06);
+    SetData(0x0e); SetData(0x12); SetData(0x14); SetData(0x17);
+    SetCommand(GFX4DST_NVGAMCTRL); SetData(0xd0); SetData(0x00); SetData(0x02); SetData(0x07);
+    SetData(0x0a); SetData(0x28); SetData(0x31); SetData(0x54); SetData(0x47); SetData(0x0e);
+    SetData(0x1c); SetData(0x17); SetData(0x1b); SetData(0x1e);
+    SetCommand(GFX4DST_INVON);
+    SetCommand(GFX4DST_CASET); SetData(0x00); SetData(0x00); SetData(0x00); SetData(0xE5);    // 239
+    SetCommand(GFX4DST_RASET); SetData(0x00); SetData(0x00); SetData(0x01); SetData(0x3F);    // 319
+    delay(120);
+    SetCommand(GFX4DST_DISPON);    //Display on
+    delay(120);
+    SPI.endTransaction();  
+  }
   if (IPSDisplay) Invert(false);
   Cls(0);
 #ifndef USE_FS
   #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
     if (SD.begin(5, SD_SCK_MHZ(79)))
-    //if(SD.begin(SD_CONFIG))
   #else
     if (SD.begin(_sd, spiSettings))
   #endif	  	  
@@ -505,7 +544,7 @@ void GFX4d::RoundRectFilled(int16_t x, int16_t y, int16_t x1, int16_t y1, int16_
   }
   int w = x1 - x + 1;
   int h = y1 - y + 1;
-  int maxR;
+  int maxR = 0;
   if (w > h)
     maxR = (h - 1) / 2;
   else if (h > w)
@@ -823,10 +862,8 @@ void GFX4d::PrintImage(uint16_t ui)
   uint16_t iwidth = tuiw[ui];
   uint16_t iheight = tuih[ui];
   uint8_t mul = cdv[ui] / 8;
-  uint8_t tempfsh = fsh;
   uint32_t pos = tuiIndex[ui] + 6;
   userImag.seek(pos);
-  uint16_t isize = iwidth * iheight;
   uint16_t ichunk = iwidth << (mul - 1);
   uint8_t buf[width << (mul - 1)];
   if (rotation == 0 || rotation == 1 || sEnable == false)
@@ -924,7 +961,7 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
   uint32_t isize;
   uint32_t isize2;
   uint32_t pos;
-  int bufsize = 2048;
+  uint32_t bufsize = 2048;
   if (cdv == 8) mul = 1;
   isize = (uiw * uih) << (mul - 1);
   setGRAM(cuix, cuiy , cuix + cuiw - 1 , cuiy + cuih - 1);
@@ -966,7 +1003,6 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
           if (pc == 12000)
           {
             WrGRAMs16(buf16, pc << 1);
-            //WrGRAMs16232(buf16, pc);
             pc = 0;
           }
         }
@@ -995,11 +1031,8 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
       {
         buf16[pc] = (buf[b] << 8) | buf[b + 1];
         pc ++;
-        //if(pc == 12000){
         WrGRAMs16(buf16, pc << 1);
-        //WrGRAMs16232(buf16, pc);
         pc = 0;
-        //}
       }
     }
     else
@@ -1012,7 +1045,6 @@ void GFX4d::DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, in
   if (pc > 0 && mul == 2)
   {
     WrGRAMs16(buf16, pc << 1);
-    //WrGRAMs16232(buf16, pc);
   }
 #endif
 }
@@ -1030,7 +1062,6 @@ void GFX4d::UserImage(uint16_t ui, int altx, int alty)
   }
   boolean setemp = sEnable;
   ScrollEnable(false);
-  int gciapos = (ui) * 13;
   if (altx == 0x7fff && alty == 0x7fff)
   {
     DrawWidget(tuiIndex[ui], tuix[ui], tuiy[ui], tuiw[ui], tuih[ui], 0, 0, false, cdv[ui]);
@@ -1042,15 +1073,14 @@ void GFX4d::UserImage(uint16_t ui, int altx, int alty)
   ScrollEnable(setemp);
 }
 
-void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
 {
   LedDigitsDisplaySigned(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
 }
 
-void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
-  int16_t i, m, lstb, digita[7];
-  int64_t nv;
+  int16_t i, m, lstb, nv, digita[7];
   int leftpos = 0;
   nv = newval ;
   lstb = 1 ;
@@ -1086,15 +1116,15 @@ void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digit
   }
 }
 
-void GFX4d::LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
 {
   LedDigitsDisplay(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
 }
 
-void GFX4d::LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
   int16_t i, k, lb;
-  int64_t l;
+  int32_t l;
   l = 1;
   for (i = 1; i < Digits; i++)
     l *= 10;
@@ -1245,10 +1275,9 @@ void GFX4d::PrintImageFile(String ifile)
   iwidth = (dataFile.read() << 8); iwidth = iwidth + dataFile.read();
   iheight = (dataFile.read() << 8); iheight =  iheight + dataFile.read();
   uint8_t mul = dataFile.read() / 8;
-  uint8_t dummy = dataFile.read();
-  uint8_t tempfsh = fsh;
+  uint8_t dummy;
+  dummy = dataFile.read();
   uint32_t pos = 6;
-  uint16_t isize = iwidth * iheight;
   uint16_t ichunk = iwidth << (mul - 1);
   uint8_t buf[width << (mul - 1)];
   if (rotation == 0 || rotation == 1 || sEnable == false)
@@ -1395,9 +1424,7 @@ void GFX4d::ImageWifi(boolean local, String Address, uint16_t port, String hfile
   yield();
   uint16_t iwidth;
   uint16_t iheight;
-  uint16_t coldepth;
   int mul = 2;
-  uint32_t len = http.getSize();
   yield();
   uint8_t buff[6] = { 0 };
   WiFiClient * stream = http.getStreamPtr();
@@ -1410,7 +1437,6 @@ void GFX4d::ImageWifi(boolean local, String Address, uint16_t port, String hfile
   iwidth = (buff[0] << 8) + buff[1];
   iheight = (buff[2] << 8) + buff[3];
   mul = buff[4] / 8;
-  uint8_t tempfsh = fsh;
   if (rotation == 0 || rotation == 1 || sEnable == false)
   {
     if (((cursor_y + iheight) - 1) > height - 1)
@@ -1465,25 +1491,14 @@ void GFX4d::ImageWifi(boolean local, String Address, uint16_t port, String hfile
 void GFX4d::Open4dGFX(String file4d)
 {
   if (userImag) Close4dGFX();
-  uint8_t um;
   uint8_t strpos = 0;
   uint8_t gotchar = 0;
   uint8_t ofset = 0;
   gciobjnum = 0;
   imageTouchEnable(-1, false);
   String inputString;
-  //#ifndef ESP32
-  //dat4d = file4d + ".dat";
-  //gci4d = file4d + ".gci";
-  //#else
-  //#ifndef USE_FS
-  //dat4d = "/" + file4d + ".dat";
-  //gci4d = "/" + file4d + ".gci";
-  //#else
   dat4d = file4d + ".dat";
   gci4d = file4d + ".gci";
-  //#endif
-  //#endif
 #ifndef USE_FS
   userDat = SD.open(dat4d);
 #else
@@ -1496,7 +1511,6 @@ void GFX4d::Open4dGFX(String file4d)
     while (userDat.available() > 0)
     {
       c = userDat.read();
-      //strpos ++;
       if (c != 13 && c != 10)
       {
         strpos ++;
@@ -1517,7 +1531,8 @@ void GFX4d::Open4dGFX(String file4d)
         String tempis = inputString;
         uint32_t tuindex = getIndexfromString(tempis, (2 + ofset));
         tuiIndex[gciobjnum] = tuindex;
-        uint32_t tuiPos = getCoordfromString(tempis, (12 + ofset));
+        uint32_t tuiPos;
+		tuiPos = getCoordfromString(tempis, (12 + ofset));
         tuix[gciobjnum] = xic;
         tuiy[gciobjnum] = yic;
         inputString = "";
@@ -1836,10 +1851,6 @@ void GFX4d::drawChar2(int16_t x, int16_t y, unsigned char c, uint16_t color, uin
       return;
     }
   }
-  //if(sizew == 1 && sizeht == 1 && (bg != color)){
-  //drawChar2tw(x, y, c, color, bg, 1);
-  //return ;
-  //}
   for (int8_t j = 0; j < 16; j++ )
   {
     uint8_t trow;
@@ -1903,7 +1914,6 @@ void GFX4d::drawChar2tw(int16_t x, int16_t y, unsigned char c, uint16_t color, u
   }
   uint16_t temppix[257];
   uint16_t pc = 0;
-  uint32_t tfval;
   setGRAM(x, y, x + 7, y + 15);
   uint8_t trow = 0x80;
   uint8_t chb;
@@ -1958,12 +1968,10 @@ void GFX4d::drawChar1tw(int16_t x, int16_t y, unsigned char c, uint16_t color, u
       if (chb1 & trow)
       {
         temppix[pc] = color;
-        //WrGRAM16(color);
       }
       else
       {
         temppix[pc] = bg;
-        //WrGRAM16(bg);
       }
       pc ++;
     }
@@ -1972,7 +1980,6 @@ void GFX4d::drawChar1tw(int16_t x, int16_t y, unsigned char c, uint16_t color, u
   WrGRAMs16(temppix, 160);
 #else
   WrGRAMs16232(temppix, 80);
-  //WrGRAMs16(temppix, 128);
 #endif
 }
 
@@ -2037,7 +2044,6 @@ void GFX4d::TWprintAt(uint8_t pax, uint8_t pay, String istr)
 
 void GFX4d::TWwrite(const char txtinput)
 {
-  //if(twen == false) return;
   if (TWimgSet)
   {
     if (twcurson && twen)drawChar2TWimage(0, TWimage, 0, twcurx, twcury, txtf);
@@ -2079,7 +2085,7 @@ void GFX4d::TWwrite(const char txtinput)
       tcnt = tcnt + 14;
       if (tcnt > ccpos)
       {
-        for (int o = 0; o < (tcnt - ccpos); o++)
+        for (uint o = 0; o < (tcnt - ccpos); o++)
         {
           twtext = twtext + char(32);
           twcurx = twcurx + 9;
@@ -2164,7 +2170,6 @@ void GFX4d::TWwrite(const char txtinput)
     uint16_t temptwcol;
     uint16_t temptwcolc;
     boolean drawspc1;
-    boolean drawspc2;
     for (int n = 0; n < chrdwn - 1; n ++)
     {
       yield();
@@ -2397,8 +2402,8 @@ void GFX4d::TextWindow(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtc
 
 void GFX4d::drawChar1(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t sizew, uint8_t sizeht)
 {
-  int crad;
-  int co;
+  int crad = 0;
+  int co = 0;
   if (fstyle == 1 || fstyle == 2 || fstyle == 3) crad = sizew >> 1;
   if (fstyle == DOTMATRIXLED) co = crad * 68 / 100;
   if (sizew > 3)crad --;
@@ -2456,7 +2461,7 @@ void GFX4d::drawChar1(int16_t x, int16_t y, unsigned char c, uint16_t color, uin
             for (int n = sizew / 2; n > -1; n --)
             {
               Rectangle(x + (i * sizew) + n, y + (j * sizeht) + n, (sizew + x) + (i * sizew) - 1 - n, (sizeht + y) + (j * sizeht) - 1 - n, fadcol);
-              /*if(!(n % step))*/fadcol = HighlightColors(fadcol, step) >> 16;
+              fadcol = HighlightColors(fadcol, step) >> 16;
             }
           }
         }
@@ -2635,7 +2640,8 @@ uint16_t GFX4d::ReadPixel(uint16_t xrp, uint16_t yrp)
   SPI.beginTransaction(spiSettingsD);
   digitalWrite(_dc, HIGH);
   digitalWrite(_cs, LOW);
-  uint16_t dcol = SPI.transfer(0);
+  uint16_t dcol;
+  dcol = SPI.transfer(0);
   uint16_t tcol = (SPI.transfer(0) & 0xF8) << 8;
   tcol = tcol | ((SPI.transfer(0) & 0xFC) << 3);
   tcol = tcol | (SPI.transfer(0) >> 3);
@@ -2646,10 +2652,8 @@ uint16_t GFX4d::ReadPixel(uint16_t xrp, uint16_t yrp)
 
 void GFX4d::ChangeColor(uint16_t oCol, uint16_t nCol)
 {
-  uint32_t tdw;
   uint16_t wcc, hcc;
-  uint16_t tcol, tcol1;
-  //uint16_t pixToChange[20];
+  uint16_t tcol;
   int r, c;
   if (Orientation() < 2)
   {
@@ -2687,25 +2691,13 @@ void GFX4d::ChangeColor(uint16_t oCol, uint16_t nCol)
       digitalWrite(_dc, HIGH);
       digitalWrite(_cs, LOW);
       uint16_t dcol = SPI.transfer(0);
-      uint32_t dcol1;
       changed = 0;
       for (int n = 0; n < 40; n += 1)
       {
-        /*
-          dcol = SPI.transfer16(0);
-          tcol = (dcol & 0xF800) | ((dcol & 0xFC) << 3);
-          dcol = SPI.transfer16(0);
-          tcol = tcol | (dcol & 0xf800) >> 11;
-          tcol1 = (dcol & 0xf8) << 8;
-          dcol = SPI.transfer16(0);
-          tcol1 = tcol1 | ((dcol & 0xfc00) >> 5);
-          tcol1 = tcol1 | ((dcol & 0xFC) >> 3);
-        */
         tcol = (SPI.transfer(0) & 0xF8) << 8;
         dcol = SPI.transfer16(0);
         tcol = tcol | ((dcol & 0xFC00) >> 5);
         tcol = tcol | ((dcol & 0xFC) >> 3);
-        //tcol = tcol | (SPI.transfer(0) >> 3);
         if (tcol != oCol)
         {
           pixToChange[n] = tcol;
@@ -2715,12 +2707,6 @@ void GFX4d::ChangeColor(uint16_t oCol, uint16_t nCol)
           changed = 1;
           pixToChange[n] = nCol;
         }
-        //if(tcol1 != oCol){
-        //pixToChange[n + 1] = tcol1;
-        //}else{
-        //changed = 1;
-        //pixToChange[n + 1] = nCol;
-        //}
       }
       digitalWrite(_cs, HIGH);
       SPI.endTransaction();
@@ -2732,55 +2718,6 @@ void GFX4d::ChangeColor(uint16_t oCol, uint16_t nCol)
     }
   }
 }
-
-/*
-  void GFX4d::WrGRAMs8(uint8_t *data, uint16_t l, byte mul) {
-  uint8_t tdata[256];
-  if(UIDRcharOn){
-    int dinc = 0;
-	uint8_t chi = TWimageTextCol >> 8;
-	uint8_t clo = TWimageTextCol & 0xFF;
-	uint8_t testf;
-	TWcharBit = 6;
-	for(int rdchr = 0; rdchr < 63; rdchr ++){
-	  testf = font2[TWimageCount + TWcharByte] >> TWcharBit;
-	  if(testf & 2){
-        tdata[dinc] = chi;
-        tdata[dinc + 1] = clo;
-        //tdata[dinc + 2] = TWimageTextCol >> 8;
-        //tdata[dinc + 3] = TWimageTextCol & 0xff;
-	  } else {
-	    tdata[dinc] = data[dinc];
-	    tdata[dinc + 1] = data[dinc + 1];
-	  }
-	  if(testf & 1){
-        //tdata[dinc] = TWimageTextCol >> 8;
-        //tdata[dinc + 1] = TWimageTextCol & 0xff;
-		tdata[dinc + 2] = chi;
-        tdata[dinc + 3] = clo;
-      } else {
-	    tdata[dinc + 2] = data[dinc + 2];
-	    tdata[dinc + 3] = data[dinc + 3];
-	  }
-	  dinc += 4;
-	if(TWcharBit == 0){
-      TWcharBit = 8; TWcharByte ++;
-    }
-    TWcharBit -= 2;
-	}
-  }
-  SPI.beginTransaction(spiSettingsD);
-  digitalWrite(_dc, HIGH);
-  digitalWrite(_cs, LOW);
-  if(UIDRcharOn){
-  SPI.writeBytes(tdata, l);
-  } else {
-  SPI.writeBytes(data, l);
-  }
-  digitalWrite(_cs, HIGH);
-  SPI.endTransaction();
-  }
-*/
 
 void GFX4d::WrGRAMs8(uint8_t *data, uint16_t l, byte mul)
 {
@@ -2937,7 +2874,6 @@ void GFX4d::Vline(int16_t x, int16_t y, int16_t h, uint16_t vcolor)
   digitalWrite(_dc, LOW);
   SPI.write(GFX4d_RAMWR);
   digitalWrite(_dc, HIGH);
-  //WrGRAM16232(vcolor, h);
   if (h < 2)
   {
     SPI.write16(vcolor);
@@ -2990,7 +2926,6 @@ void GFX4d::Hline(int16_t x, int16_t y, int16_t w, uint16_t hcolor)
   }
   else
   {
-    //WrGRAM16232(hcolor, w);
     while (w > 0)
     {
       SPI.write32((hcolor << 16) | hcolor);
@@ -3069,7 +3004,6 @@ void GFX4d::RectangleFilled(int16_t x, int16_t y, int16_t x1, int16_t y1, uint16
   SPI.write(GFX4d_RAMWR);
   digitalWrite(_dc, HIGH);
   int32_t tpwh = w * h;
-  //WrGRAM16232(color, tpwh);
   if (tpwh < 2)
   {
     SPI.write16(color);
@@ -3117,7 +3051,6 @@ void GFX4d::PanelRecessed(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t c
 
 void GFX4d::Buttonx(uint8_t hndl, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t colorb, String btext, int8_t tfont, uint16_t tcolor)
 {
-  boolean nlbckp = nl;
   nl = false;
   bactive[hndl] = true;
   bposx[hndl] = x;
@@ -3230,7 +3163,7 @@ void GFX4d::drawButton(uint8_t updn, int16_t x, int16_t y, int16_t w, int16_t h,
   }
   if (bxStyle > 0)
   {
-    int nh, g1, g2, gr1, gr2, nw;
+    int nh, g1, g2, nw;
     nw = h / 10;
     if (nw == 0) nw = 1;
     if (bxStyle == 1)
@@ -3339,7 +3272,6 @@ void GFX4d::ButtonDown(int hndl)
   uint16_t colorbd = bposc[hndl];
   uint32_t tcol = bevelColor(colorbd);
   uint16_t _dark = tcol >> 16;
-  uint16_t _light = tcol & 0xffff;
   if (bxStyle == 0)
   {
     Hline(x, y, w, colorbd);
@@ -3393,7 +3325,7 @@ void GFX4d::ButtonUp(int hndl)
     }
     if (bxStyle > 0)
     {
-      int nh, g1, g2, gr1, gr2, nw;
+      int nh, g1, g2, nw;
       nw = h / 10;
       if (nw == 0) nw = 1;
       if (bxStyle == 1)
@@ -3573,7 +3505,11 @@ void GFX4d::Orientation(uint8_t m)
 #ifdef M5STACK
       SPI.write(0x68);
 #else
+      if(ST7789){
+		SPI.write(TFT_MAD_COLOR_ORDER);  
+	  } else {
       SPI.write(0x48);
+      }
 #endif
       digitalWrite(_cs, HIGH);
       width  = GFX4d_TFTWIDTH;
@@ -3586,7 +3522,11 @@ void GFX4d::Orientation(uint8_t m)
 #ifdef M5STACK
       SPI.write(0xA8);
 #else
+      if(ST7789){
+		SPI.write(TFT_MAD_MV | TFT_MAD_MY | TFT_MAD_COLOR_ORDER);  
+	  } else {
       SPI.write(0xE8);
+	  }
 #endif
       digitalWrite(_cs, HIGH);
       width  = GFX4d_TFTHEIGHT;
@@ -3603,7 +3543,11 @@ void GFX4d::Orientation(uint8_t m)
 #ifdef M5STACK
       SPI.write(0xC8);
 #else
+      if(ST7789){
+		SPI.write(TFT_MAD_MX | TFT_MAD_MY | TFT_MAD_COLOR_ORDER);
+	  } else {
       SPI.write(0x88);
+	  }
 #endif
       digitalWrite(_cs, HIGH);
       width  = GFX4d_TFTWIDTH;
@@ -3616,7 +3560,12 @@ void GFX4d::Orientation(uint8_t m)
 #ifdef M5STACK
       SPI.write(0x08);
 #else
+      if(ST7789){
+		SPI.write(TFT_MAD_MX | TFT_MAD_MV | TFT_MAD_COLOR_ORDER);
+		//SPI.write(TFT_MAD_COLOR_ORDER);  
+	  } else {
       SPI.write(0x28);
+	  }
 #endif
       digitalWrite(_cs, HIGH);
       width  = GFX4d_TFTHEIGHT;
@@ -3708,7 +3657,6 @@ void GFX4d::touch_Set(uint8_t mode)
 #else
   SPI.beginTransaction(spiSettingsT32);
 #endif
-  //if(mode == TOUCH_DISABLE){
   tchen = false;
   digitalWrite(_tcs, LOW);
   delayMicroseconds(50);
@@ -3724,7 +3672,6 @@ void GFX4d::touch_Set(uint8_t mode)
     delayMicroseconds(50);
   }
   digitalWrite(_tcs, HIGH);
-  //}
   if (mode == TOUCH_ENABLE)
   {
     tchen = true;
@@ -3758,8 +3705,6 @@ void GFX4d::touch_Set(uint8_t mode)
       dat = SPI.transfer(0);
       delayMicroseconds(50);
     }
-    //delayMicroseconds(50);
-    //SPI.write(T_SENSE);
     delayMicroseconds(50);
     SPI.write(0x55);
     delayMicroseconds(50);
@@ -3838,7 +3783,6 @@ boolean GFX4d::touch_Update()
   {
     gTX = (dattouch[2] << 7) + (dattouch[1] & 0x7F);
     gTY = (dattouch[4] << 7) + (dattouch[3] & 0x7F);
-    int tstgPEN = dattouch[0];
     if (dattouch[0] > 129 || dattouch[0] < 128) pen = 128;
     if (pen == 129)
     {
@@ -4084,9 +4028,7 @@ void GFX4d::UserImageDR(uint16_t ui, int16_t uxpos, int16_t uypos, int16_t uwidt
   if (uxpos >= width || uypos >= height || uxpos < 0 || uypos < 0) return;
   if ((uxpos + uwidth - 1) < 0 || (uypos + uheight - 1) < 0) return;
   if ((uxpos + uwidth - 1) > width || (uypos + uheight - 1) > height) return;
-  boolean setemp = sEnable;
   ScrollEnable(false);
-  int gciapos = (ui) * 13;
   uint32_t bgoff;
   if (userImag)
   {
@@ -4268,7 +4210,6 @@ void GFX4d::UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t
     bheight = tuih[ui];
   }
   uint32_t bgoff = bgindex + 6 + (((ucy * bwidth) + ucx) << 1);
-  uint8_t top = 0;
   uint8_t left = 0;
   uint32_t tdw;
   uint32_t pix1;
@@ -4280,7 +4221,6 @@ void GFX4d::UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t
   if ((ucx + ucwidth - 1) > (width - 1) || (ucy + ucheight - 1) > (height - 1)) return;
   uint16_t ucloop = (ucwidth * ucheight) >> 1;
   setGRAM(ucx, ucy, ucx + ucwidth - 1, ucy + ucheight - 1);
-  uint32_t test = 2 ^ (ucwidth - 1);
   uint32_t test2 = 0;
   uint32_t bgbuf[ucloop];
   tdw = *data++;
@@ -4329,7 +4269,6 @@ void GFX4d::UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t
       left = 0;
       bgoff = bgoff + (bwidth << 1);
       tdw = *data++;
-      uint32_t test = 2 ^ (ucwidth - 1);
     }
     bgbuf[c] = (pix1 << 16) + pix2;
   }
@@ -4529,7 +4468,6 @@ void GFX4d::c565toRGBs(uint16_t i565)
 void GFX4d::RGB2HLS()
 {
   uint8_t cMax, cMin, Rdelta, Gdelta, Bdelta, cMpM, cMmM ;
-  uint8_t tmaxmin;
   if (GFX4d_RED >= GFX4d_GREEN)
   {
     cMax = GFX4d_RED;
@@ -4858,8 +4796,8 @@ uint16_t GFX4d::GetSliderValue(uint16_t ui, uint8_t axis, uint16_t uiv, uint16_t
 int GFX4d::DecodeKeypad(int kpad, int kpress, byte *kbks, int8_t *kbck)
 {
   int key = -1;
-  int kv;
-  int koff;
+  int kv = 0;
+  int koff = 0;
   if (shift) koff = kbck[10];
   if (caps) koff = koff + (2 * kbck[10]);
   if (ctrl) koff = (3 * kbck[10]);
@@ -4941,8 +4879,8 @@ bool GFX4d::SpriteInit(uint16_t *sdata, size_t nums)
 {
   if (msprites < 1) return false;
   uint16_t scount = 0;
-  int sdatpos;
-  int sprsize;
+  int sdatpos = 0;
+  int sprsize = 0;
   uint16_t cdpth = 1;
   uint16_t nextpos = 4;
   while (scount <= nums && cdpth > 0)
@@ -4996,9 +4934,6 @@ void GFX4d::SetSprite(int num, bool active, int x, int y, uint16_t bscolor, uint
   bool delsprite = false;
   int lxy = num << 1;
   int dxy = num << 3;
-  int sacoords[6];
-  int rx = 0xffff;
-  int ry = 0xffff;
   int dsx = spriteList[dxy + SPRITE_X];
   int dsy = spriteList[dxy + SPRITE_Y];
   if (spriteList[(num << 3) + 0] == 1 && active == 0)
@@ -5347,7 +5282,7 @@ void GFX4d::SetMaxNumberSprites(uint16_t snos)
 
 uint16_t GFX4d::Grad(int raisSunk, int state, int glev, int h1, int pos, uint16_t colToAdj)
 {
-  int /*CTAr, CTAg, CTAb,*/ CTALevel, BflatMin, BflatMax;
+  int CTALevel, BflatMin, BflatMax;
   uint16_t retcolor;
   int8_t CTAr, CTAg, CTAb;
   if (glev > 63) glev = 63;
