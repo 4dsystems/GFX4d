@@ -2,7 +2,7 @@
 *                                                                          *
    4D Systems GFX4d Library
 *                                                                          *
-   Date:        4th June 2021
+   Date:        16th August 2021
 *                                                                          *
    Description: Provides Graphics, Touch Control and SD Card functions
                 for 4D Systems Gen4 IoD range of intelligent displays.
@@ -180,6 +180,7 @@
 // #define USE_FS
 #define IPS_DISPLAY		1
 #define TN_DISPLAY		0
+#define ST7789_DISPLAY	2
 #include "Arduino.h"
 #include "Print.h"
 #ifndef USE_FS
@@ -485,6 +486,133 @@
 #define  SPRITE_16BIT                    0x01
 #define  SPRITE_8BIT                     0x02
 #define  SPRITE_4BIT                     0x03
+
+#define TFT_WIDTH  240
+#define TFT_HEIGHT 320
+
+#if (TFT_HEIGHT == 240) && (TFT_WIDTH == 240)
+  #define CGRAM_OFFSET
+#endif
+
+#define TFT_NOP     0x00
+#define TFT_SWRST   0x01
+
+#define TFT_SLPIN   0x10
+#define TFT_SLPOUT  0x11
+#define TFT_NORON   0x13
+
+#define TFT_INVOFF  0x20
+#define TFT_INVON   0x21
+#define TFT_DISPOFF 0x28
+#define TFT_DISPON  0x29
+#define TFT_CASET   0x2A
+#define TFT_PASET   0x2B
+#define TFT_RAMWR   0x2C
+#define TFT_RAMRD   0x2E
+#define TFT_MADCTL  0x36
+#define TFT_COLMOD  0x3A
+
+#define TFT_MAD_MY  0x80
+#define TFT_MAD_MX  0x40
+#define TFT_MAD_MV  0x20
+#define TFT_MAD_ML  0x10
+#define TFT_MAD_RGB 0x00
+#define TFT_MAD_BGR 0x08
+#define TFT_MAD_MH  0x04
+#define TFT_MAD_SS  0x02
+#define TFT_MAD_GS  0x01
+#define TFT_RGB_ORDER 0x00
+
+#ifdef TFT_RGB_ORDER
+  #if (TFT_RGB_ORDER == 1)
+    #define TFT_MAD_COLOR_ORDER TFT_MAD_RGB
+  #else
+    #define TFT_MAD_COLOR_ORDER TFT_MAD_BGR
+  #endif
+#else
+  #ifdef CGRAM_OFFSET
+    #define TFT_MAD_COLOR_ORDER TFT_MAD_BGR
+  #else
+    #define TFT_MAD_COLOR_ORDER TFT_MAD_RGB
+  #endif
+#endif
+
+#define TFT_IDXRD   0x00
+
+#define GFX4DST_NOP			0x00
+#define GFX4DST_SWRESET		0x01
+#define GFX4DST_RDDID		0x04
+#define GFX4DST_RDDST		0x09
+
+#define GFX4DST_RDDPM		0x0A      // Read display power mode
+#define GFX4DST_RDD_MADCTL	0x0B      // Read display MADCTL
+#define GFX4DST_RDD_COLMOD	0x0C      // Read display pixel format
+#define GFX4DST_RDDIM		0x0D      // Read display image mode
+#define GFX4DST_RDDSM		0x0E      // Read display signal mode
+#define GFX4DST_RDDSR		0x0F      // Read display self-diagnostic result (ST7789V)
+
+#define GFX4DST_SLPIN		0x10
+#define GFX4DST_SLPOUT		0x11
+#define GFX4DST_PTLON		0x12
+#define GFX4DST_NORON		0x13
+
+#define GFX4DST_INVOFF		0x20
+#define GFX4DST_INVON		0x21
+#define GFX4DST_GAMSET		0x26      // Gamma set
+#define GFX4DST_DISPOFF		0x28
+#define GFX4DST_DISPON		0x29
+#define GFX4DST_CASET		0x2A
+#define GFX4DST_RASET		0x2B
+#define GFX4DST_RAMWR		0x2C
+#define GFX4DST_RGBSET		0x2D      // Color setting for 4096, 64K and 262K colors
+#define GFX4DST_RAMRD		0x2E
+
+#define GFX4DST_PTLAR		0x30
+#define GFX4DST_VSCRDEF		0x33      // Vertical scrolling definition (ST7789V)
+#define GFX4DST_TEOFF		0x34      // Tearing effect line off
+#define GFX4DST_TEON			0x35      // Tearing effect line on
+#define GFX4DST_MADCTL		0x36      // Memory data access control
+#define GFX4DST_IDMOFF		0x38      // Idle mode off
+#define GFX4DST_IDMON		0x39      // Idle mode on
+#define GFX4DST_RAMWRC		0x3C      // Memory write continue (ST7789V)
+#define GFX4DST_RAMRDC		0x3E      // Memory read continue (ST7789V)
+#define GFX4DST_COLMOD		0x3A
+
+#define GFX4DST_RAMCTRL		0xB0
+#define GFX4DST_RGBCTRL		0xB1
+#define GFX4DST_PORCTRL		0xB2
+#define GFX4DST_FRCTRL1		0xB3
+#define GFX4DST_PARCTRL		0xB5
+#define GFX4DST_GCTRL		0xB7
+#define GFX4DST_GTADJ		0xB8
+#define GFX4DST_DGMEN		0xBA
+#define GFX4DST_VCOMS		0xBB
+#define GFX4DST_LCMCTRL		0xC0
+#define GFX4DST_IDSET		0xC1
+#define GFX4DST_VDVVRHEN		0xC2
+#define GFX4DST_VRHS			0xC3
+#define GFX4DST_VDVSET		0xC4
+#define GFX4DST_VCMOFSET		0xC5
+#define GFX4DST_FRCTR2		0xC6
+#define GFX4DST_CABCCTRL		0xC7
+#define GFX4DST_REGSEL1		0xC8
+#define GFX4DST_REGSEL2		0xCA
+#define GFX4DST_PWMFRSEL		0xCC
+#define GFX4DST_PWCTRL1		0xD0
+#define GFX4DST_VAPVANEN		0xD2
+#define GFX4DST_CMD2EN		0xDF
+#define GFX4DST_PVGAMCTRL	0xE0
+#define GFX4DST_NVGAMCTRL	0xE1
+#define GFX4DST_DGMLUTR		0xE2
+#define GFX4DST_DGMLUTB		0xE3
+#define GFX4DST_GATECTRL		0xE4
+#define GFX4DST_SPI2EN		0xE7
+#define GFX4DST_PWCTRL2		0xE8
+#define GFX4DST_EQCTRL		0xE9
+#define GFX4DST_PROMCTRL		0xEC
+#define GFX4DST_PROMEN		0xFA
+#define GFX4DST_NVMSET		0xFC
+#define GFX4DST_PROMACT		0xFE
 
 
 static const uint8_t at[] =
@@ -793,10 +921,10 @@ class GFX4d : public Print
              UserImages(uint16_t uis, int16_t frame, int offset, int16_t altx, int16_t alty),
              UserImages(uint16_t uisnb, int16_t framenb, int16_t newx, int16_t newy),
              UserImagesDR(uint16_t uino, int frames, int16_t uxpos, int16_t uypos, int16_t uwidth, int16_t uheight),
-             LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-             LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-             LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-             LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
+             LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
+             LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
+             LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
+             LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
              DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, int16_t uih, uint16_t frame, int16_t bar, bool images, uint8_t cdv),
              DrawImage(uint32_t Index, int16_t uix, int16_t uiy),
              UserCharacter(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, uint16_t bgcolor),
@@ -983,9 +1111,11 @@ class GFX4d : public Print
     int8_t   lastfsw;
     int8_t   _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd, _sRes;
     boolean  IPSDisplay = false;
+	boolean  ST7789 = false;
 
   public:
-    int16_t  //lastArcOld[max_ARCSIZE],
+    uint8_t  dispID[4];
+	int16_t  //lastArcOld[max_ARCSIZE],
     //inx[max_ARCSIZE],
     GSCropArcLeft = -1,
     GSCropArcRight = -1,
