@@ -1049,8 +1049,8 @@ void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digit
 
 void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
-  int16_t i, m, lstb, digita[7];
-  int64_t nv;
+  int16_t i, lstb, digita[21];
+  int64_t m, nv;
   int leftpos = 0;
   nv = newval ;
   lstb = 1 ;
