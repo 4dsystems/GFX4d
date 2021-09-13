@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems GFX4d Library                                                *
 *                                                                          *
-*  Date:        16th August 2021                                           *
+*  Date:        12th September 2021                                           *
 *                                                                          *
 *  Description: Provides Graphics, Touch Control and SD Card functions     *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -1075,12 +1075,33 @@ void GFX4d::UserImage(uint16_t ui, int altx, int alty)
 
 void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
 {
+  LedDigitsDisplaySigned((int64_t)newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
+}
+
+void GFX4d::LedDigitsDisplaySigned(int32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+{
+  LedDigitsDisplaySigned((int64_t)newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
+}
+
+void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+{
   LedDigitsDisplaySigned(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
 }
 
 void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
-  int16_t i, m, lstb, nv, digita[7];
+  LedDigitsDisplaySigned((int64_t) newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, altx, alty);
+}
+
+void GFX4d::LedDigitsDisplaySigned(int32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+{
+  LedDigitsDisplaySigned((int64_t) newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, altx, alty);
+}
+
+void GFX4d::LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+{
+  int16_t i, lstb, digita[21];
+  int64_t m, nv;
   int leftpos = 0;
   nv = newval ;
   lstb = 1 ;
@@ -1116,15 +1137,35 @@ void GFX4d::LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digit
   }
 }
 
-void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+void GFX4d::LedDigitsDisplay(uint16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+{
+  LedDigitsDisplay((uint64_t)newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
+}
+
+void GFX4d::LedDigitsDisplay(uint32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
+{
+  LedDigitsDisplay((uint64_t)newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
+}
+
+void GFX4d::LedDigitsDisplay(uint64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks)
 {
   LedDigitsDisplay(newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, 0x7fff , 0x7fff);
 }
 
-void GFX4d::LedDigitsDisplay(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+void GFX4d::LedDigitsDisplay(uint16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
 {
-  int16_t i, k, lb;
-  int32_t l;
+  LedDigitsDisplay((uint64_t) newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, altx, alty);	
+}
+
+void GFX4d::LedDigitsDisplay(uint32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+{
+  LedDigitsDisplay((uint64_t) newval, index, Digits, MinDigits, WidthDigit, LeadingBlanks, altx, alty);	
+}
+
+void GFX4d::LedDigitsDisplay(uint64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty)
+{
+  int16_t i, lb;
+  uint64_t l, k;
   l = 1;
   for (i = 1; i < Digits; i++)
     l *= 10;
