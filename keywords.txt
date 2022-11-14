@@ -10,23 +10,27 @@
 # Methods and Functions (KEYWORD2)
 #######################################
 
-GFX4d	KEYWORD1
+GFX4d			KEYWORD1
+strWidth		KEYWORD2
+charWidth		KEYWORD2
+charHeight		KEYWORD2
+imageGetWord	KEYWORD2
 GradientShape	KEYWORD2
 ButtonXstyle	KEYWORD2
 GetSliderValue	KEYWORD2
 DecodeKeypad	KEYWORD2
-ResetKeypad	KEYWORD2
+ResetKeypad		KEYWORD2
 KeypadStatus	KEYWORD2
 SpriteEnable	KEYWORD2
 SpriteSetPalette	KEYWORD2
 SpriteGetPalette	KEYWORD2
 SpriteTouched	KEYWORD2
-SpriteInit	KEYWORD2
-SpriteAdd	KEYWORD2
+SpriteInit		KEYWORD2
+SpriteAdd		KEYWORD2
 SpriteAreaSet	KEYWORD2
 GetSpriteImageNum	KEYWORD2
-SetSprite	KEYWORD2
-GetSprite	KEYWORD2
+SetSprite		KEYWORD2
+GetSprite		KEYWORD2
 GetSpritesAt	KEYWORD2
 SpriteGetPixel	KEYWORD2
 UpdateSprites	KEYWORD2
@@ -151,6 +155,10 @@ getFontData	KEYWORD2
 # Constants (LITERAL1)
 #######################################
 
+IMAGE_XPOS	LITERAL1
+IMAGE_YPOS	LITERAL1
+IMAGE_WIDTH	LITERAL1
+IMAGE_HEIGHT	LITERAL1
 GFX4d_RED	LITERAL1
 GFX4d_GREEN	LITERAL1
 GFX4d_BLUE	LITERAL1

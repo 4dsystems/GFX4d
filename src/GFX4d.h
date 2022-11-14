@@ -1,481 +1,520 @@
 /***************************************************************************
 *                                                                          *
-   4D Systems GFX4d Library
+*  4D Systems GFX4d Library                                                *
 *                                                                          *
-   Date:        6th October 2021
+*  Date:        13th Nov 2022                                              *
 *                                                                          *
-   Description: Provides Graphics, Touch Control and SD Card functions
-                for 4D Systems Gen4 IoD range of intelligent displays.
+*  Description: Provides Graphics, Touch Control and SD Card functions     *
+*               for 4D Systems Gen4 IoD range of intelligent displays.     *
 *                                                                          *
-                    GNU LESSER GENERAL PUBLIC LICENSE
-                        Version 3, 29 June 2007
+*                   GNU LESSER GENERAL PUBLIC LICENSE                      *
+*                       Version 3, 29 June 2007                            *
 *                                                                          *
-  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
-  Everyone is permitted to copy and distribute verbatim copies
-  of this license document, but changing it is not allowed.
+* Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>      *
+* Everyone is permitted to copy and distribute verbatim copies             *
+* of this license document, but changing it is not allowed.                *
 *                                                                          *
 *                                                                          *
-  This version of the GNU Lesser General Public License incorporates
-  the terms and conditions of version 3 of the GNU General Public
-  License, supplemented by the additional permissions listed below.
+* This version of the GNU Lesser General Public License incorporates       *
+* the terms and conditions of version 3 of the GNU General Public          *
+* License, supplemented by the additional permissions listed below.        *
 *                                                                          *
-   0. Additional Definitions.
+*  0. Additional Definitions.                                              *
 *                                                                          *
-    As used herein, "this License" refers to version 3 of the GNU Lesser
-  General Public License, and the "GNU GPL" refers to version 3 of the GNU
-  General Public License.
+*   As used herein, "this License" refers to version 3 of the GNU Lesser   *
+* General Public License, and the "GNU GPL" refers to version 3 of the GNU *
+* General Public License.                                                  *
 *                                                                          *
-    "The Library" refers to a covered work governed by this License,
-  other than an Application or a Combined Work as defined below.
+*   "The Library" refers to a covered work governed by this License,       *
+* other than an Application or a Combined Work as defined below.           *
 *                                                                          *
-    An "Application" is any work that makes use of an interface provided
-  by the Library, but which is not otherwise based on the Library.
-  Defining a subclass of a class defined by the Library is deemed a mode
-  of using an interface provided by the Library.
+*   An "Application" is any work that makes use of an interface provided   *
+* by the Library, but which is not otherwise based on the Library.         *
+* Defining a subclass of a class defined by the Library is deemed a mode   *
+* of using an interface provided by the Library.                           *
 *                                                                          *
-    A "Combined Work" is a work produced by combining or linking an
-  Application with the Library.  The particular version of the Library
-  with which the Combined Work was made is also called the "Linked
-  Version".
+*   A "Combined Work" is a work produced by combining or linking an        *
+* Application with the Library.  The particular version of the Library     *
+* with which the Combined Work was made is also called the "Linked         *
+* Version".                                                                *
 *                                                                          *
-    The "Minimal Corresponding Source" for a Combined Work means the
-  Corresponding Source for the Combined Work, excluding any source code
-  for portions of the Combined Work that, considered in isolation, are
-  based on the Application, and not on the Linked Version.
+*   The "Minimal Corresponding Source" for a Combined Work means the       *
+* Corresponding Source for the Combined Work, excluding any source code    *
+* for portions of the Combined Work that, considered in isolation, are     *
+* based on the Application, and not on the Linked Version.                 *
 *                                                                          *
-    The "Corresponding Application Code" for a Combined Work means the
-  object code and/or source code for the Application, including any data
-  and utility programs needed for reproducing the Combined Work from the
-  Application, but excluding the System Libraries of the Combined Work.
+*   The "Corresponding Application Code" for a Combined Work means the     *
+* object code and/or source code for the Application, including any data   *
+* and utility programs needed for reproducing the Combined Work from the   *
+* Application, but excluding the System Libraries of the Combined Work.    *
 *                                                                          *
-   1. Exception to Section 3 of the GNU GPL.
+*  1. Exception to Section 3 of the GNU GPL.                               *
 *                                                                          *
-    You may convey a covered work under sections 3 and 4 of this License
-  without being bound by section 3 of the GNU GPL.
+*   You may convey a covered work under sections 3 and 4 of this License   *
+* without being bound by section 3 of the GNU GPL.                         *
 *                                                                          *
-   2. Conveying Modified Versions.
+*  2. Conveying Modified Versions.                                         *
 *                                                                          *
-    If you modify a copy of the Library, and, in your modifications, a
-  facility refers to a function or data to be supplied by an Application
-  that uses the facility (other than as an argument passed when the
-  facility is invoked), then you may convey a copy of the modified
-  version:
+*   If you modify a copy of the Library, and, in your modifications, a     *
+* facility refers to a function or data to be supplied by an Application   *
+* that uses the facility (other than as an argument passed when the        *
+* facility is invoked), then you may convey a copy of the modified         *
+* version:                                                                 *
 *                                                                          *
-    a) under this License, provided that you make a good faith effort to
-    ensure that, in the event an Application does not supply the
-    function or data, the facility still operates, and performs
-    whatever part of its purpose remains meaningful, or
+*   a) under this License, provided that you make a good faith effort to   *
+*   ensure that, in the event an Application does not supply the           *
+*   function or data, the facility still operates, and performs            *
+*   whatever part of its purpose remains meaningful, or                    *
 *                                                                          *
-    b) under the GNU GPL, with none of the additional permissions of
-    this License applicable to that copy.
+*   b) under the GNU GPL, with none of the additional permissions of       *
+*   this License applicable to that copy.                                  *
 *                                                                          *
-   3. Object Code Incorporating Material from Library Header Files.
+*  3. Object Code Incorporating Material from Library Header Files.        *
 *                                                                          *
-    The object code form of an Application may incorporate material from
-  a header file that is part of the Library.  You may convey such object
-  code under terms of your choice, provided that, if the incorporated
-  material is not limited to numerical parameters, data structure
-  layouts and accessors, or small macros, inline functions and templates
-  (ten or fewer lines in length), you do both of the following:
+*   The object code form of an Application may incorporate material from   *
+* a header file that is part of the Library.  You may convey such object   *
+* code under terms of your choice, provided that, if the incorporated      *
+* material is not limited to numerical parameters, data structure          *
+* layouts and accessors, or small macros, inline functions and templates   *
+* (ten or fewer lines in length), you do both of the following:            *
 *                                                                          *
-    a) Give prominent notice with each copy of the object code that the
-    Library is used in it and that the Library and its use are
-    covered by this License.
+*   a) Give prominent notice with each copy of the object code that the    *
+*   Library is used in it and that the Library and its use are             *
+*   covered by this License.                                               *
 *                                                                          *
-    b) Accompany the object code with a copy of the GNU GPL and this
-    license document.
+*   b) Accompany the object code with a copy of the GNU GPL and this       *
+*   license document.                                                      *
 *                                                                          *
-   4. Combined Works.
+*  4. Combined Works.                                                      *
 *                                                                          *
-    You may convey a Combined Work under terms of your choice that,
-  taken together, effectively do not restrict modification of the
-  portions of the Library contained in the Combined Work and reverse
-  engineering for debugging such modifications, if you also do each of
-  the following:
+*   You may convey a Combined Work under terms of your choice that,        *
+* taken together, effectively do not restrict modification of the          *
+* portions of the Library contained in the Combined Work and reverse       *
+* engineering for debugging such modifications, if you also do each of     *
+* the following:                                                           *
 *                                                                          *
-    a) Give prominent notice with each copy of the Combined Work that
-    the Library is used in it and that the Library and its use are
-    covered by this License.
+*   a) Give prominent notice with each copy of the Combined Work that      *
+*   the Library is used in it and that the Library and its use are         *
+*   covered by this License.                                               *
 *                                                                          *
-    b) Accompany the Combined Work with a copy of the GNU GPL and this
-    license document.
+*   b) Accompany the Combined Work with a copy of the GNU GPL and this     *
+*   license document.                                                      *
 *                                                                          *
-    c) For a Combined Work that displays copyright notices during
-    execution, include the copyright notice for the Library among
-    these notices, as well as a reference directing the user to the
-    copies of the GNU GPL and this license document.
+*   c) For a Combined Work that displays copyright notices during          *
+*   execution, include the copyright notice for the Library among          *
+*   these notices, as well as a reference directing the user to the        *
+*   copies of the GNU GPL and this license document.                       *
 *                                                                          *
-    d) Do one of the following:
+*   d) Do one of the following:                                            *
 *                                                                          *
-        0) Convey the Minimal Corresponding Source under the terms of this
-        License, and the Corresponding Application Code in a form
-        suitable for, and under terms that permit, the user to
-        recombine or relink the Application with a modified version of
-        the Linked Version to produce a modified Combined Work, in the
-        manner specified by section 6 of the GNU GPL for conveying
-        Corresponding Source.
+*       0) Convey the Minimal Corresponding Source under the terms of this *
+*       License, and the Corresponding Application Code in a form          *
+*       suitable for, and under terms that permit, the user to             *
+*       recombine or relink the Application with a modified version of     *
+*       the Linked Version to produce a modified Combined Work, in the     *
+*       manner specified by section 6 of the GNU GPL for conveying         *
+*       Corresponding Source.                                              *
 *                                                                          *
-        1) Use a suitable shared library mechanism for linking with the
-        Library.  A suitable mechanism is one that (a) uses at run time
-        a copy of the Library already present on the user's computer
-        system, and (b) will operate properly with a modified version
-        of the Library that is interface-compatible with the Linked
-        Version.
+*       1) Use a suitable shared library mechanism for linking with the    *
+*       Library.  A suitable mechanism is one that (a) uses at run time    *
+*       a copy of the Library already present on the user's computer       *
+*       system, and (b) will operate properly with a modified version      *
+*       of the Library that is interface-compatible with the Linked        *
+*       Version.                                                           *
 *                                                                          *
-    e) Provide Installation Information, but only if you would otherwise
-    be required to provide such information under section 6 of the
-    GNU GPL, and only to the extent that such information is
-    necessary to install and execute a modified version of the
-    Combined Work produced by recombining or relinking the
-    Application with a modified version of the Linked Version. (If
-    you use option 4d0, the Installation Information must accompany
-    the Minimal Corresponding Source and Corresponding Application
-    Code. If you use option 4d1, you must provide the Installation
-    Information in the manner specified by section 6 of the GNU GPL
-    for conveying Corresponding Source.)
+*   e) Provide Installation Information, but only if you would otherwise   *
+*   be required to provide such information under section 6 of the         *
+*   GNU GPL, and only to the extent that such information is               *
+*   necessary to install and execute a modified version of the             *
+*   Combined Work produced by recombining or relinking the                 *
+*   Application with a modified version of the Linked Version. (If         *
+*   you use option 4d0, the Installation Information must accompany        *
+*   the Minimal Corresponding Source and Corresponding Application         *
+*   Code. If you use option 4d1, you must provide the Installation         *
+*   Information in the manner specified by section 6 of the GNU GPL        *
+*   for conveying Corresponding Source.)                                   *
 *                                                                          *
-   5. Combined Libraries.
+*  5. Combined Libraries.                                                  *
 *                                                                          *
-    You may place library facilities that are a work based on the
-  Library side by side in a single library together with other library
-  facilities that are not Applications and are not covered by this
-  License, and convey such a combined library under terms of your
-  choice, if you do both of the following:
+*   You may place library facilities that are a work based on the          *
+* Library side by side in a single library together with other library     *
+* facilities that are not Applications and are not covered by this         *
+* License, and convey such a combined library under terms of your          *
+* choice, if you do both of the following:                                 *
 *                                                                          *
-    a) Accompany the combined library with a copy of the same work based
-    on the Library, uncombined with any other library facilities,
-    conveyed under the terms of this License.
+*   a) Accompany the combined library with a copy of the same work based   *
+*   on the Library, uncombined with any other library facilities,          *
+*   conveyed under the terms of this License.                              *
 *                                                                          *
-    b) Give prominent notice with the combined library that part of it
-    is a work based on the Library, and explaining where to find the
-    accompanying uncombined form of the same work.
+*   b) Give prominent notice with the combined library that part of it     *
+*   is a work based on the Library, and explaining where to find the       *
+*   accompanying uncombined form of the same work.                         *
 *                                                                          *
-   6. Revised Versions of the GNU Lesser General Public License.
+*  6. Revised Versions of the GNU Lesser General Public License.           *
 *                                                                          *
-    The Free Software Foundation may publish revised and/or new versions
-  of the GNU Lesser General Public License from time to time. Such new
-  versions will be similar in spirit to the present version, but may
-  differ in detail to address new problems or concerns.
+*   The Free Software Foundation may publish revised and/or new versions   *
+* of the GNU Lesser General Public License from time to time. Such new     *
+* versions will be similar in spirit to the present version, but may       *
+* differ in detail to address new problems or concerns.                    *
 *                                                                          *
-    Each version is given a distinguishing version number. If the
-  Library as you received it specifies that a certain numbered version
-  of the GNU Lesser General Public License "or any later version"
-  applies to it, you have the option of following the terms and
-  conditions either of that published version or of any later version
-  published by the Free Software Foundation. If the Library as you
-  received it does not specify a version number of the GNU Lesser
-  General Public License, you may choose any version of the GNU Lesser
-  General Public License ever published by the Free Software Foundation.
+*   Each version is given a distinguishing version number. If the          *
+* Library as you received it specifies that a certain numbered version     *
+* of the GNU Lesser General Public License "or any later version"          *
+* applies to it, you have the option of following the terms and            *
+* conditions either of that published version or of any later version      *
+* published by the Free Software Foundation. If the Library as you         *
+* received it does not specify a version number of the GNU Lesser          *
+* General Public License, you may choose any version of the GNU Lesser     *
+* General Public License ever published by the Free Software Foundation.   *
 *                                                                          *
-    If the Library as you received it specifies that a proxy can decide
-  whether future versions of the GNU Lesser General Public License shall
-  apply, that proxy's public statement of acceptance of any version is
-  permanent authorization for you to choose that version for the
-  Library.
+*   If the Library as you received it specifies that a proxy can decide    *
+* whether future versions of the GNU Lesser General Public License shall   *
+* apply, that proxy's public statement of acceptance of any version is     *
+* permanent authorization for you to choose that version for the           *
+* Library.                                                                 *
 *                                                                          *
 ***************************************************************************/
 
 #ifndef _GFX4d_H
 #define _GFX4d_H
+
 // #define USE_FS
+
+#define IMAGE_NOT_TOUCHED	255
+//#define IMAGE_NOT_TOUCHED	-1
+//#define IMAGE_NOT_TOUCHED	MAX_WIDGETS+1
+
 #define IPS_DISPLAY		1
 #define TN_DISPLAY		0
 #define ST7789_DISPLAY	2
+#define ST240x240		4
+#define ILI9488_DISPLAY	8
 #include "Arduino.h"
 #include "Print.h"
-#ifndef USE_FS
-  //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
-  //  #include "SdFat.h"
-  //  #include "sdios.h"
-  //#else
-    #include <SD.h>
-  //#endif
-#else
-//#define FS_NO_GLOBALS //allow spiffs to coexist with SD card, define BEFORE including FS.h
-#include <LittleFS.h> //spiff file system
-#endif
+#include <SPI.h>
 
+#ifndef USE_FS
+  #include <SD.h>
+#else
+  #include <LittleFS.h> //spiff file system
+#endif
 
 #define SD_CONFIG SdSpiConfig(5, SHARED_SPI, SPI_CLOCK)
 
-#define MAX_WIDGETS	       400
+//#define MAX_WIDGETS	       300
 
 #ifdef USING_WS4_GCIOBJECTS
-#define  GCIOBJSEN
+  #define  GCIOBJSEN
 #endif
-#define  GFX4d_TFTWIDTH    240
-#define  GFX4d_TFTHEIGHT   320
+#ifdef ESP32
+  #define DISP_CS_HI		   	GPIO.out1_w1ts.val = ((uint32_t)1 << (_cs - 32));
+  #define DISP_CS_LO		   	GPIO.out1_w1tc.val = ((uint32_t)1 << (_cs - 32));
+  //#define TOUCH_CS_HI		   	GPIO.out1_w1ts.val = (1 << (_tcs - 32));
+  //#define TOUCH_CS_LO		   	GPIO.out1_w1tc.val = (1 << (_tcs - 32));
+  #define TOUCH_CS_HI		   	GPIO.out_w1ts=(1<<_tcs)
+  #define TOUCH_CS_LO			GPIO.out_w1tc=(1<<_tcs)
+  #define DISP_DC_HI           	GPIO.out_w1ts=((uint32_t)1<<_dc)
+  #define DISP_DC_LO           	GPIO.out_w1tc=((uint32_t)1<<_dc)
+  #define SD_BEGIN             	SD.begin(_sd,SPI,79000000)
+  #define ESP8266WiFi.h		   	Wifi.h
+#else
+  #define DISP_CS_HI           	GPOS=(1<<_cs)
+  #define DISP_CS_LO           	GPOC=(1<<_cs)
+  #define TOUCH_CS_HI           GPOS=(1<<_tcs)
+  #define TOUCH_CS_LO           GPOC=(1<<_tcs)
+  #define DISP_DC_HI           	GPOS=(1<<_dc)
+  #define DISP_DC_LO           	GPOC=(1<<_dc)
+  #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+    #define SD_BEGIN           	SD.begin(_sd,SD_SCK_MHZ(79))  
+  #else
+	#define SD_BEGIN           	SD.begin(_sd,spiSettings)
+  #endif
+#endif
+#define DISP_SPI_BEGINT      	SPI.beginTransaction(spiSettingsD)
+#define DISP_SPI_BEGINTT     	SPI.beginTransaction(spiSettingsT)
+#define DISP_SPI_ENDT        	SPI.endTransaction()
+#define DISP_SPI_WRITE       	SPI.write
+#define DISP_SPI_WRITE16     	SPI.write16
+#define DISP_SPI_WRITE32     	SPI.write32
+#define DISP_SPI_WRITEBYTES  	SPI.writeBytes
+#define DISP_SPI_TRANSFER    	SPI.transfer
+#define DISP_SPI_TRANSFER16  	SPI.transfer16
 
-#define  GFX4d_NOP         0x00
-#define  GFX4d_SWRESET     0x01
-#define  GFX4d_RDDID       0x04
-#define  GFX4d_RDDST       0x09
+#define  GFX4d_NOP         		0x00
+#define  GFX4d_SWRESET     		0x01
+#define  GFX4d_RDDID       		0x04
+#define  GFX4d_RDDST       		0x09
 
-#define  GFX4d_SLPIN       0x10
-#define  GFX4d_SLPOUT      0x11
-#define  GFX4d_PTLON       0x12
-#define  GFX4d_NORON       0x13
+#define  GFX4d_SLPIN       		0x10
+#define  GFX4d_SLPOUT      		0x11
+#define  GFX4d_PTLON       		0x12
+#define  GFX4d_NORON       		0x13
 
-#define  GFX4d_RDMODE      0x0A
-#define  GFX4d_RDMADCTL    0x0B
-#define  GFX4d_RDPIXFMT    0x0C
-#define  GFX4d_RDIMGFMT    0x0D
-#define  GFX4d_RDSELFDIAG  0x0F
+#define  GFX4d_RDMODE      		0x0A
+#define  GFX4d_RDMADCTL    		0x0B
+#define  GFX4d_RDPIXFMT    		0x0C
+#define  GFX4d_RDIMGFMT    		0x0D
+#define  GFX4d_RDSELFDIAG  		0x0F
 
-#define  GFX4d_INVOFF      0x20
-#define  GFX4d_INVON       0x21
-#define  GFX4d_GAMMASET    0x26
-#define  GFX4d_DISPOFF     0x28
-#define  GFX4d_DISPON      0x29
+#define  GFX4d_INVOFF      		0x20
+#define  GFX4d_INVON       		0x21
+#define  GFX4d_GAMMASET    		0x26
+#define  GFX4d_DISPOFF     		0x28
+#define  GFX4d_DISPON      		0x29
 
-#define  GFX4d_CASET       0x2A
-#define  GFX4d_PASET       0x2B
-#define  GFX4d_RAMWR       0x2C
-#define  GFX4d_RAMRD       0x2E
+#define  GFX4d_CASET       		0x2A
+#define  GFX4d_PASET       		0x2B
+#define  GFX4d_RAMWR       		0x2C
+#define  GFX4d_RAMRD       		0x2E
 
-#define  GFX4d_PTLAR       0x30
-#define  GFX4d_VSCRDEF     0x33
-#define  GFX4d_MADCTL      0x36
-#define  GFX4d_VSCRSADD    0x37
-#define  GFX4d_PIXFMT      0x3A
+#define  GFX4d_PTLAR       		0x30
+#define  GFX4d_VSCRDEF     		0x33
+#define  GFX4d_MADCTL      		0x36
+#define  GFX4d_VSCRSADD    		0x37
+#define  GFX4d_PIXFMT      		0x3A
 
-#define  GFX4d_FRMCTR1     0xB1
-#define  GFX4d_FRMCTR2     0xB2
-#define  GFX4d_FRMCTR3     0xB3
-#define  GFX4d_INVCTR      0xB4
-#define  GFX4d_DFUNCTR     0xB6
+#define  GFX4d_FRMCTR1     		0xB1
+#define  GFX4d_FRMCTR2     		0xB2
+#define  GFX4d_FRMCTR3     		0xB3
+#define  GFX4d_INVCTR      		0xB4
+#define  GFX4d_DFUNCTR     		0xB6
 
-#define  GFX4d_PWCTR1      0xC0
-#define  GFX4d_PWCTR2      0xC1
-#define  GFX4d_PWCTR3      0xC2
-#define  GFX4d_PWCTR4      0xC3
-#define  GFX4d_PWCTR5      0xC4
-#define  GFX4d_VMCTR1      0xC5
-#define  GFX4d_VMCTR2      0xC7
+#define  GFX4d_PWCTR1      		0xC0
+#define  GFX4d_PWCTR2      		0xC1
+#define  GFX4d_PWCTR3      		0xC2
+#define  GFX4d_PWCTR4      		0xC3
+#define  GFX4d_PWCTR5      		0xC4
+#define  GFX4d_VMCTR1      		0xC5
+#define  GFX4d_VMCTR2      		0xC7
 
-#define  GFX4d_RDID1       0xDA
-#define  GFX4d_RDID2       0xDB
-#define  GFX4d_RDID3       0xDC
-#define  GFX4d_RDID4       0xDD
+#define  GFX4d_RDID1       		0xDA
+#define  GFX4d_RDID2       		0xDB
+#define  GFX4d_RDID3       		0xDC
+#define  GFX4d_RDID4       		0xDD
 
-#define  GFX4d_GMCTRP1     0xE0
-#define  GFX4d_GMCTRN1     0xE1
+#define  GFX4d_GMCTRP1     		0xE0
+#define  GFX4d_GMCTRN1     		0xE1
 
-#define  LANDSCAPE	     0
-#define  LANDSCAPE_R     1
-#define  PORTRAIT	     2
-#define  PORTRAIT_R	     3
-#define  SOLID		     0
-#define  DOTMATRIXROUND	 1
-#define  DOTMATRIXLED    3
-#define  DOTMATRIXSQUARE 4
-#define  DOTMATRIXFADE   5
-#define  SYSTEM		     1
-#define  FONT1		     1
-#define  FONT2		     2
-#define  Pressed		 1
-#define  Released	     0
-#define  SLIDER_RAISED	 0
-#define  SLIDER_SUNKEN	 1
-#define  NOTOUCH         0
-#define  T_SENSE         10
-#define  TOUCH_PRESSED   1
-#define  TOUCH_RELEASED  2
-#define  TOUCH_STATUS    0
-#define  TOUCH_GETX      1
-#define  TOUCH_GETY      2
-#define  KEYPAD			 3
-#define  DRAW_UPDOWN     2
-#define  DRAW_DOWNONLY   1
-#define  DRAW_NONE       0
-#define  MAX_ARCSIZE       200
-#define  GRADIENT_RAISED   0
-#define  GRADIENT_SUNKEN   1
-#define  GRADIENT_FLATTEN  -1
-#define  GRADIENT_HIGH     63
-#define  GRADIENT_MEDIUM   32
-#define  GRADIENT_LOW      24
-#define  GRADIENT_OFF      0
-#define  GRADIENT_DARKEN0  0
-#define  GRADIENT_DARKEN1  1
-#define  GRADIENT_DARKEN2  2
-#define  BUTTON_SQUARE	   0
-#define  BUTTON_ROUNDED	   1
-#define  BUTTON_CIRCULAR   2
-#define  BUTTON_CIRCULAR_TOP 3
+#define  IMAGE_XPOS		 		1
+#define  IMAGE_YPOS		 		2
+#define  IMAGE_WIDTH	 		4
+#define  IMAGE_HEIGHT	 		8
+#define  IMAGE_VALUE	 		16
+#define  LANDSCAPE	     		0
+#define  LANDSCAPE_R     		1
+#define  PORTRAIT	     		2
+#define  PORTRAIT_R	     		3
+#define  SOLID		     		0
+#define  DOTMATRIXROUND	 		1
+#define  DOTMATRIXLED    		3
+#define  DOTMATRIXSQUARE 		4
+#define  DOTMATRIXFADE   		5
+#define  SYSTEM		     		1
+#define  FONT1		     		1
+#define  FONT2		     		2
+#define  Pressed		 		1
+#define  Released	     		0
+#define  SLIDER_RAISED	 		0
+#define  SLIDER_SUNKEN	 		1
+#define  NOTOUCH         		0
+#define  T_SENSE         		10
+#define  TOUCH_PRESSED   		1
+#define  TOUCH_RELEASED  		2
+#define  TOUCH_STATUS    		0
+#define  TOUCH_GETX      		1
+#define  TOUCH_GETY      		2
+#define  KEYPAD			 		3
+#define  DRAW_UPDOWN     		2
+#define  DRAW_DOWNONLY   		1
+#define  DRAW_NONE       		0
+#define  MAX_ARCSIZE       		200
+#define  GRADIENT_RAISED   		0
+#define  GRADIENT_SUNKEN   		1
+#define  GRADIENT_FLATTEN  		-1
+#define  GRADIENT_HIGH     		63
+#define  GRADIENT_MEDIUM   		32
+#define  GRADIENT_LOW      		24
+#define  GRADIENT_OFF      		0
+#define  GRADIENT_DARKEN0  		0
+#define  GRADIENT_DARKEN1  		1
+#define  GRADIENT_DARKEN2  		2
+#define  BUTTON_SQUARE	   		0
+#define  BUTTON_ROUNDED	   		1
+#define  BUTTON_CIRCULAR   		2
+#define  BUTTON_CIRCULAR_TOP 	3
 
-#define  ALICEBLUE	0xF7DF
-#define  ANTIQUEWHITE	0xFF5A
-#define  AQUA		0x07FF
-#define  AQUAMARINE	0x7FFA
-#define  AZURE		0xF7FF
-#define  BEIGE		0xF7BB
-#define  BISQUE		0xFF38
-#define  BLACK		0x0000
-#define  BLANCHEDALMOND	0xFF59
-#define  BLUE		0x001F
-#define  BLUEVIOLET	0x895C
-#define  BROWN		0xA145
-#define  BURLYWOOD	0xDDD0
-#define  CADETBLUE	0x5CF4
-#define  CHARTREUSE	0x7FE0
-#define  CHOCOLATE	0xD343
-#define  CORAL		0xFBEA
-#define  CORNFLOWERBLUE	0x64BD
-#define  CORNSILK	0xFFDB
-#define  CRIMSON	0xD8A7
-#define  CYAN		0x07FF
-#define  DARKBLUE	0x0011
-#define  DARKCYAN	0x0451
-#define  DARKGOLDENROD	0xBC21
-#define  DARKGRAY	0xAD55
-#define  DARKGREEN	0x0320
-#define  DARKKHAKI	0xBDAD
-#define  DARKMAGENTA	0x8811
-#define  DARKOLIVEGREEN	0x5345
-#define  DARKORANGE	0xFC60
-#define  DARKORCHID	0x9999
-#define  DARKRED	0x8800
-#define  DARKSALMON	0xECAF
-#define  DARKSEAGREEN	0x8DF1
-#define  DARKSLATEBLUE	0x49F1
-#define  DARKSLATEGRAY	0x2A69
-#define  DARKTURQUOISE	0x067A
-#define  DARKVIOLET	0x901A
-#define  DEEPPINK	0xF8B2
-#define  DEEPSKYBLUE	0x05FF
-#define  DIMGRAY	0x6B4D
-#define  DODGERBLUE	0x1C9F
-#define  FIREBRICK	0xB104
-#define  FLORALWHITE	0xFFDE
-#define  FORESTGREEN	0x2444
-#define  FUCHSIA	0xF81F
-#define  GAINSBORO	0xDEFB
-#define  GHOSTWHITE	0xFFDF
-#define  GOLD		0xFEA0
-#define  GOLDENROD	0xDD24
-#define  GRAY		0x8410
-#define  GREEN		0x0400
-#define  GREENYELLOW	0xAFE5
-#define  HONEYDEW	0xF7FE
-#define  HOTPINK	0xFB56
-#define  INDIANRED	0xCAEB
-#define  INDIGO		0x4810
-#define  IVORY		0xFFFE
-#define  KHAKI		0xF731
-#define  LAVENDER	0xE73F
-#define  LAVENDERBLUSH	0xFF9E
-#define  LAWNGREEN	0x7FE0
-#define  LEMONCHIFFON	0xFFD9
-#define  LIGHTBLUE	0xAEDC
-#define  LIGHTCORAL	0xF410
-#define  LIGHTCYAN	0xE7FF
-#define  LIGHTGOLD	0xFFDA
-#define  LIGHTGREEN	0x9772
-#define  LIGHTGREY	0xD69A
-#define  LIGHTPINK	0xFDB8
-#define  LIGHTSALMON	0xFD0F
-#define  LIGHTSEAGREEN	0x2595
-#define  LIGHTSKYBLUE	0x867F
-#define  LIGHTSLATEGRAY	0x7453
-#define  LIGHTSTEELBLUE	0xB63B
-#define  LIGHTYELLOW	0xFFFC
-#define  LIME		0x07E0
-#define  LIMEGREEN	0x3666
-#define  LINEN		0xFF9C
-#define  MAGENTA	0xF81F
-#define  MAROON		0x8000
+#define  ALICEBLUE			0xF7DF
+#define  ANTIQUEWHITE		0xFF5A
+#define  AQUA				0x07FF
+#define  AQUAMARINE			0x7FFA
+#define  AZURE				0xF7FF
+#define  BEIGE				0xF7BB
+#define  BISQUE				0xFF38
+#define  BLACK				0x0000
+#define  BLANCHEDALMOND		0xFF59
+#define  BLUE				0x001F
+#define  BLUEVIOLET			0x895C
+#define  BROWN				0xA145
+#define  BURLYWOOD			0xDDD0
+#define  CADETBLUE			0x5CF4
+#define  CHARTREUSE			0x7FE0
+#define  CHOCOLATE			0xD343
+#define  CORAL				0xFBEA
+#define  CORNFLOWERBLUE		0x64BD
+#define  CORNSILK			0xFFDB
+#define  CRIMSON			0xD8A7
+#define  CYAN				0x07FF
+#define  DARKBLUE			0x0011
+#define  DARKCYAN			0x0451
+#define  DARKGOLDENROD		0xBC21
+#define  DARKGRAY			0xAD55
+#define  DARKGREEN			0x0320
+#define  DARKKHAKI			0xBDAD
+#define  DARKMAGENTA		0x8811
+#define  DARKOLIVEGREEN		0x5345
+#define  DARKORANGE			0xFC60
+#define  DARKORCHID			0x9999
+#define  DARKRED			0x8800
+#define  DARKSALMON			0xECAF
+#define  DARKSEAGREEN		0x8DF1
+#define  DARKSLATEBLUE		0x49F1
+#define  DARKSLATEGRAY		0x2A69
+#define  DARKTURQUOISE		0x067A
+#define  DARKVIOLET			0x901A
+#define  DEEPPINK			0xF8B2
+#define  DEEPSKYBLUE		0x05FF
+#define  DIMGRAY			0x6B4D
+#define  DODGERBLUE			0x1C9F
+#define  FIREBRICK			0xB104
+#define  FLORALWHITE		0xFFDE
+#define  FORESTGREEN		0x2444
+#define  FUCHSIA			0xF81F
+#define  GAINSBORO			0xDEFB
+#define  GHOSTWHITE			0xFFDF
+#define  GOLD				0xFEA0
+#define  GOLDENROD			0xDD24
+#define  GRAY				0x8410
+#define  GREEN				0x0400
+#define  GREENYELLOW		0xAFE5
+#define  HONEYDEW			0xF7FE
+#define  HOTPINK			0xFB56
+#define  INDIANRED			0xCAEB
+#define  INDIGO				0x4810
+#define  IVORY				0xFFFE
+#define  KHAKI				0xF731
+#define  LAVENDER			0xE73F
+#define  LAVENDERBLUSH		0xFF9E
+#define  LAWNGREEN			0x7FE0
+#define  LEMONCHIFFON		0xFFD9
+#define  LIGHTBLUE			0xAEDC
+#define  LIGHTCORAL			0xF410
+#define  LIGHTCYAN			0xE7FF
+#define  LIGHTGOLD			0xFFDA
+#define  LIGHTGREEN			0x9772
+#define  LIGHTGREY			0xD69A
+#define  LIGHTPINK			0xFDB8
+#define  LIGHTSALMON		0xFD0F
+#define  LIGHTSEAGREEN		0x2595
+#define  LIGHTSKYBLUE		0x867F
+#define  LIGHTSLATEGRAY		0x7453
+#define  LIGHTSTEELBLUE		0xB63B
+#define  LIGHTYELLOW		0xFFFC
+#define  LIME				0x07E0
+#define  LIMEGREEN			0x3666
+#define  LINEN				0xFF9C
+#define  MAGENTA			0xF81F
+#define  MAROON				0x8000
 #define  MEDIUMAQUAMARINE 	0x6675
-#define  MEDIUMBLUE	0x0019
-#define  MEDIUMORCHID	0xBABA
-#define  MEDIUMPURPLE	0x939B
-#define  MEDIUMSEAGREEN	0x3D8E
+#define  MEDIUMBLUE			0x0019
+#define  MEDIUMORCHID		0xBABA
+#define  MEDIUMPURPLE		0x939B
+#define  MEDIUMSEAGREEN		0x3D8E
 #define  MEDIUMSLATEBLUE	0x7B5D
 #define  MEDIUMSPRINGGREEN	0x07D3
 #define  MEDIUMTURQUOISE	0x4E99
 #define  MEDIUMVIOLETRED	0xC0B0
-#define  MIDNIGHTBLUE	0x18CE
-#define  MINTCREAM	0xF7FF
-#define  MISTYROSE	0xFF3C
-#define  MOCCASIN	0xFF36
-#define  NAVAJOWHITE	0xFEF5
-#define  NAVY		0x0010
-#define  OLDLACE	0xFFBC
-#define  OLIVE		0x8400
-#define  OLIVEDRAB	0x6C64
-#define  ORANGE		0xFD20
-#define  ORANGERED	0xFA20
-#define  ORCHID		0xDB9A
-#define  PALEGOLDENROD	0xEF55
-#define  PALEGREEN	0x9FD3
-#define  PALETURQUOISE	0xAF7D
-#define  PALEVIOLETRED	0xDB92
-#define  PAPAYAWHIP	0xFF7A
-#define  PEACHPUFF	0xFED7
-#define  PERU		0xCC27
-#define  PINK		0xFE19
-#define  PLUM		0xDD1B
-#define  POWDERBLUE	0xB71C
-#define  PURPLE		0x8010
-#define  RED		0xF800
-#define  ROSYBROWN	0xBC71
-#define  ROYALBLUE	0x435C
-#define  SADDLEBROWN	0x8A22
-#define  SALMON		0xFC0E
-#define  SANDYBROWN	0xF52C
-#define  SEAGREEN	0x2C4A
-#define  SEASHELL	0xFFBD
-#define  SIENNA		0xA285
-#define  SILVER		0xC618
-#define  SKYBLUE	0x867D
-#define  SLATEBLUE	0x6AD9
-#define  SLATEGRAY	0x7412
-#define  SNOW		0xFFDF
-#define  SPRINGGREEN	0x07EF
-#define  STEELBLUE	0x4416
-#define  TAN		0xD5B1
-#define  TEAL		0x0410
-#define  THISTLE	0xDDFB
-#define  TOMATO		0xFB08
-#define  TURQUOISE	0x471A
-#define  VIOLET		0xEC1D
-#define  WHEAT		0xF6F6
-#define  WHITE		0xFFFF
-#define  WHITESMOKE	0xF7BE
-#define  YELLOW		0xFFE0
-#define  YELLOWGREEN	0x9E66
+#define  MIDNIGHTBLUE		0x18CE
+#define  MINTCREAM			0xF7FF
+#define  MISTYROSE			0xFF3C
+#define  MOCCASIN			0xFF36
+#define  NAVAJOWHITE		0xFEF5
+#define  NAVY				0x0010
+#define  OLDLACE			0xFFBC
+#define  OLIVE				0x8400
+#define  OLIVEDRAB			0x6C64
+#define  ORANGE				0xFD20
+#define  ORANGERED			0xFA20
+#define  ORCHID				0xDB9A
+#define  PALEGOLDENROD		0xEF55
+#define  PALEGREEN			0x9FD3
+#define  PALETURQUOISE		0xAF7D
+#define  PALEVIOLETRED		0xDB92
+#define  PAPAYAWHIP			0xFF7A
+#define  PEACHPUFF			0xFED7
+#define  PERU				0xCC27
+#define  PINK				0xFE19
+#define  PLUM				0xDD1B
+#define  POWDERBLUE			0xB71C
+#define  PURPLE				0x8010
+#define  RED				0xF800
+#define  ROSYBROWN			0xBC71
+#define  ROYALBLUE			0x435C
+#define  SADDLEBROWN		0x8A22
+#define  SALMON				0xFC0E
+#define  SANDYBROWN			0xF52C
+#define  SEAGREEN			0x2C4A
+#define  SEASHELL			0xFFBD
+#define  SIENNA				0xA285
+#define  SILVER				0xC618
+#define  SKYBLUE			0x867D
+#define  SLATEBLUE			0x6AD9
+#define  SLATEGRAY			0x7412
+#define  SNOW				0xFFDF
+#define  SPRINGGREEN		0x07EF
+#define  STEELBLUE			0x4416
+#define  TAN				0xD5B1
+#define  TEAL				0x0410
+#define  THISTLE			0xDDFB
+#define  TOMATO				0xFB08
+#define  TURQUOISE			0x471A
+#define  VIOLET				0xEC1D
+#define  WHEAT				0xF6F6
+#define  WHITE				0xFFFF
+#define  WHITESMOKE			0xF7BE
+#define  YELLOW				0xFFE0
+#define  YELLOWGREEN		0x9E66
 
-#define	 HLSMAX         127
-#define  HLSMAXm2d3     85
-#define  HLSMAXd12      10
-#define  HLSMAXd6       21
-#define  HLSMAXd2       63
-#define  HLSMAXd3       42
-#define  RGBMAX         127
-#define  RGBMAXm2       254
-#define  UNDEFINED      85
-#define  _redmask    0xF800
-#define  _greenmask  0x07E0
-#define  _bluemask   0x001F
-#define  GET_VERSION                   	0x10
-#define  ENABLE_TOUCH                   	0x12
-#define  DISABLE_TOUCH                  	0x13
+#define	 HLSMAX         	127
+#define  HLSMAXm2d3     	85
+#define  HLSMAXd12      	10
+#define  HLSMAXd6       	21
+#define  HLSMAXd2       	63
+#define  HLSMAXd3       	42
+#define  RGBMAX         	127
+#define  RGBMAXm2       	254
+#define  UNDEFINED      	85
+#define  _redmask       	0xF800
+#define  _greenmask     	0x07E0
+#define  _bluemask      	0x001F
+#define  GET_VERSION                   	 0x10
+#define  ENABLE_TOUCH                    0x12
+#define  DISABLE_TOUCH                   0x13
 #define  CALIBRATE_MODE                  0x14
 #define  REGISTER_READ                   0x20
 #define  REGISTER_WRITE                  0x21
 #define  REGISTER_START_ADDRESS_REQUEST  0x22
 #define  REGISTERS_WRITE_TO_EEPROM       0x23
 #define  EEPROM_READ                     0x28
-#define  EEPROM_WRITE                  	0x29
+#define  EEPROM_WRITE                  	 0x29
 #define  EEPROM_WRITE_TO_REGISTERS       0x2B
 #define  TOUCH_ENABLE                    0x00
 #define  TOUCH_DISABLE                   0x01
-#define  HORIZONTAL_SLIDER				0x00
-#define  VERTICAL_SLIDER					0x01
+#define  HORIZONTAL_SLIDER				 0x00
+#define  VERTICAL_SLIDER				 0x01
 #define  SHIFT                           0x01
 #define  CAPSLOCK                        0x02
 #define  CTRL                            0x03
-#define  SPRITE_ACTIVE					0x00
+#define  SPRITE_ACTIVE					 0x00
 #define  SPRITE_MEMPOS                   0x01
 #define  SPRITE_X                        0x02
 #define  SPRITE_Y                        0x03
@@ -488,40 +527,40 @@
 #define  SPRITE_4BIT                     0x03
 
 #define TFT_WIDTH  240
-#define TFT_HEIGHT 320
+#define TFT_HEIGHT 340
 
 #if (TFT_HEIGHT == 240) && (TFT_WIDTH == 240)
   #define CGRAM_OFFSET
 #endif
 
-#define TFT_NOP     0x00
-#define TFT_SWRST   0x01
+#define TFT_NOP     	0x00
+#define TFT_SWRST   	0x01
 
-#define TFT_SLPIN   0x10
-#define TFT_SLPOUT  0x11
-#define TFT_NORON   0x13
+#define TFT_SLPIN   	0x10
+#define TFT_SLPOUT  	0x11
+#define TFT_NORON   	0x13
 
-#define TFT_INVOFF  0x20
-#define TFT_INVON   0x21
-#define TFT_DISPOFF 0x28
-#define TFT_DISPON  0x29
-#define TFT_CASET   0x2A
-#define TFT_PASET   0x2B
-#define TFT_RAMWR   0x2C
-#define TFT_RAMRD   0x2E
-#define TFT_MADCTL  0x36
-#define TFT_COLMOD  0x3A
+#define TFT_INVOFF  	0x20
+#define TFT_INVON   	0x21
+#define TFT_DISPOFF 	0x28
+#define TFT_DISPON  	0x29
+#define TFT_CASET   	0x2A
+#define TFT_PASET   	0x2B
+#define TFT_RAMWR   	0x2C
+#define TFT_RAMRD   	0x2E
+#define TFT_MADCTL  	0x36
+#define TFT_COLMOD  	0x3A
 
-#define TFT_MAD_MY  0x80
-#define TFT_MAD_MX  0x40
-#define TFT_MAD_MV  0x20
-#define TFT_MAD_ML  0x10
-#define TFT_MAD_RGB 0x00
-#define TFT_MAD_BGR 0x08
-#define TFT_MAD_MH  0x04
-#define TFT_MAD_SS  0x02
-#define TFT_MAD_GS  0x01
-#define TFT_RGB_ORDER 0x00
+#define TFT_MAD_MY  	0x80
+#define TFT_MAD_MX  	0x40
+#define TFT_MAD_MV  	0x20
+#define TFT_MAD_ML  	0x10
+#define TFT_MAD_RGB 	0x00
+#define TFT_MAD_BGR 	0x08
+#define TFT_MAD_MH  	0x04
+#define TFT_MAD_SS  	0x02
+#define TFT_MAD_GS  	0x01
+#define TFT_RGB_ORDER 	0x00
 
 #ifdef TFT_RGB_ORDER
   #if (TFT_RGB_ORDER == 1)
@@ -570,7 +609,7 @@
 #define GFX4DST_PTLAR		0x30
 #define GFX4DST_VSCRDEF		0x33      // Vertical scrolling definition (ST7789V)
 #define GFX4DST_TEOFF		0x34      // Tearing effect line off
-#define GFX4DST_TEON			0x35      // Tearing effect line on
+#define GFX4DST_TEON		0x35      // Tearing effect line on
 #define GFX4DST_MADCTL		0x36      // Memory data access control
 #define GFX4DST_IDMOFF		0x38      // Idle mode off
 #define GFX4DST_IDMON		0x39      // Idle mode on
@@ -589,27 +628,27 @@
 #define GFX4DST_VCOMS		0xBB
 #define GFX4DST_LCMCTRL		0xC0
 #define GFX4DST_IDSET		0xC1
-#define GFX4DST_VDVVRHEN		0xC2
-#define GFX4DST_VRHS			0xC3
+#define GFX4DST_VDVVRHEN	0xC2
+#define GFX4DST_VRHS		0xC3
 #define GFX4DST_VDVSET		0xC4
-#define GFX4DST_VCMOFSET		0xC5
+#define GFX4DST_VCMOFSET	0xC5
 #define GFX4DST_FRCTR2		0xC6
-#define GFX4DST_CABCCTRL		0xC7
+#define GFX4DST_CABCCTRL	0xC7
 #define GFX4DST_REGSEL1		0xC8
 #define GFX4DST_REGSEL2		0xCA
-#define GFX4DST_PWMFRSEL		0xCC
+#define GFX4DST_PWMFRSEL	0xCC
 #define GFX4DST_PWCTRL1		0xD0
-#define GFX4DST_VAPVANEN		0xD2
+#define GFX4DST_VAPVANEN	0xD2
 #define GFX4DST_CMD2EN		0xDF
 #define GFX4DST_PVGAMCTRL	0xE0
 #define GFX4DST_NVGAMCTRL	0xE1
 #define GFX4DST_DGMLUTR		0xE2
 #define GFX4DST_DGMLUTB		0xE3
-#define GFX4DST_GATECTRL		0xE4
+#define GFX4DST_GATECTRL	0xE4
 #define GFX4DST_SPI2EN		0xE7
 #define GFX4DST_PWCTRL2		0xE8
 #define GFX4DST_EQCTRL		0xE9
-#define GFX4DST_PROMCTRL		0xEC
+#define GFX4DST_PROMCTRL	0xEC
 #define GFX4DST_PROMEN		0xFA
 #define GFX4DST_NVMSET		0xFC
 #define GFX4DST_PROMACT		0xFE
@@ -879,22 +918,32 @@ class GFX4d : public Print
     fs::File dataFile;
     fs::File userImag;
     fs::File userDat;
-#endif
+#endif	
+
 
     GFX4d();
 
     void     begin(void),
              begin(byte a),
              setGRAM(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1),
+#ifdef ESP32
+			 setGRAMdma(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1),
+#endif
              WrGRAM(uint32_t color),
              WrGRAMs(uint32_t *data, uint16_t l),
+			 WrGRAMsNT(uint32_t *data, uint16_t l),
              WrGRAM16(uint16_t color),
              WrGRAMs16(uint16_t *data, uint16_t l),
+			 WrGRAMs16NT(uint16_t *data, uint16_t l),
              WrGRAMs8(uint8_t *data, uint16_t l, byte mul),
              WrGRAMs16232(uint16_t *data, uint16_t l),
              WrGRAMs16232(uint16_t *data, uint16_t l, uint8_t *odata, int x, int y),
              WrGRAM16232(uint16_t mcolor, int32_t l),
              WrGRAMs16232NT(uint16_t *data, uint16_t l),
+			 WriteBytes(uint8_t *data, uint32_t l),
+#ifdef ESP32
+			 WritePixels(uint16_t * data, uint32_t l),
+#endif
              WrGRAMend(),
              WrGRAMstart(),
              FillScreen(uint16_t color),
@@ -907,6 +956,9 @@ class GFX4d : public Print
              MoveTo(int16_t x, int16_t y),
              newLine(int8_t f1, int8_t ts, uint16_t ux),
              Open4dGFX(String file4d),
+			 Open4dGFX(String file4d, bool allocMAX),
+			 _Open4dGFX(String file4d, bool scan),
+			 SetMaxWidgets(int mw),
              DownloadFile(String WebAddr, String Fname),
              DownloadFile(String WebAddr, String Fname, String sha1),
              DownloadFile(String Address, uint16_t port, String hfile, String Fname),
@@ -921,23 +973,14 @@ class GFX4d : public Print
              UserImages(uint16_t uis, int16_t frame, int offset, int16_t altx, int16_t alty),
              UserImages(uint16_t uisnb, int16_t framenb, int16_t newx, int16_t newy),
              UserImagesDR(uint16_t uino, int frames, int16_t uxpos, int16_t uypos, int16_t uwidth, int16_t uheight),
-             //LedDigitsDisplay(uint16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-			 //LedDigitsDisplay(uint32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-			 LedDigitsDisplay(uint64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-			 //LedDigitsDisplay(uint16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-			 //LedDigitsDisplay(uint32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-             LedDigitsDisplay(uint64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-             //LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-			 //LedDigitsDisplaySigned(int32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-			 LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
-             //LedDigitsDisplaySigned(int16_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-			 //LedDigitsDisplaySigned(int32_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
-			 LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
+             LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
+             LedDigitsDisplay(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
+             LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks),
+             LedDigitsDisplaySigned(int64_t newval, uint16_t index, int16_t Digits, int16_t MinDigits, int16_t WidthDigit, int16_t LeadingBlanks, int16_t altx, int16_t alty),
              DrawWidget(uint32_t Index, int16_t uix, int16_t uiy, int16_t uiw, int16_t uih, uint16_t frame, int16_t bar, bool images, uint8_t cdv),
              DrawImage(uint32_t Index, int16_t uix, int16_t uiy),
              UserCharacter(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, uint16_t bgcolor),
-             UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color,
-                             boolean draw, uint32_t bgindex),
+             UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, boolean draw, uint32_t bgindex),
              UserCharacterBG(int8_t ui, uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, boolean draw),
              UserCharacterBG(uint32_t *data, uint8_t ucsize, int16_t ucx, int16_t ucy, uint16_t color, boolean draw, uint32_t bgindex, bool type, int8_t ui),
              PrintImage(uint16_t iIndex),
@@ -1018,13 +1061,18 @@ class GFX4d : public Print
              ResetKeypad(),
              TextWindowImage(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t txtcolor, uint16_t TWimg, uint16_t frcolor),
              drawChar2TWimage(uint8_t ch, uint16_t uino, int frames, int16_t uxpos, int16_t uypos, uint16_t txtcol),
-             gradientShape(int ow, int xPos, int yPos, int w, int h, int r1, int r2, int r3, int r4, int darken, uint16_t color, int sr1, int gl1, uint16_t colorD, int sr3, int gl3, int gtb),
-             HlineD(int y, int x1, int x2, uint16_t color),
+             gradientShape(int ow, int xPos, int yPos, int w, int h, int r1, int r2, int r3, int r4, int darken, int color, int sr1, int gl1, int colorD, int sr3, int gl3, int gtb),
+             HlineD(int y, int x1, int x2, int color),
              ChangeColor(uint16_t oCol, uint16_t nCol),
              ButtonXstyle(byte bs),
-             Invert(boolean i);
+             Invert(boolean i),
+			 GradTriangleFilled(int x0, int y0, int x1, int y1, int x2, int y2, int color, int ncCol, int h, int ypos, int lev, int erase);
 
-    uint16_t RGBto565(uint8_t r, uint8_t g, uint8_t b);
+    int		 strWidth(String ts);
+	int		 charHeight(char ch = 'A');
+	int		 charWidth(char ch = 'A');
+	int		 imageGetWord(uint16_t img, byte controlIndex);
+	uint16_t RGBto565(uint8_t r, uint8_t g, uint8_t b);
     uint16_t RGBs2COL(uint8_t r, uint8_t g, uint8_t b);
     uint8_t  hue_RGB(int Hin, int M1, int M2);
     uint16_t ReadPixel(uint16_t xrp, uint16_t yrp);
@@ -1048,7 +1096,7 @@ class GFX4d : public Print
     uint16_t touch_GetX(void);
     uint16_t touch_GetY(void);
     uint8_t  touch_GetPen(void);
-    uint16_t imageTouched(void);
+    int      imageTouched(void);
     uint8_t  CheckButtons(void);
     uint16_t getNumberofObjects(void);
     uint8_t  getFontData(uint8_t fntnum, uint16_t val);
@@ -1056,7 +1104,7 @@ class GFX4d : public Print
     int      DecodeKeypad(int kpad, int kpress, byte *kbks, int8_t *kbck);
     bool     KeypadStatus(int keyType);
     bool     SpriteInit(uint16_t *sdata, size_t nums);
-    bool	   SpriteAdd(int pos, int snum, int x, int y, uint16_t *sdata);
+    bool	 SpriteAdd(int pos, int snum, int x, int y, uint16_t *sdata);
     boolean  CheckSD(void);
     boolean  CheckDL(void);
     boolean  touch_Update(void);
@@ -1071,7 +1119,7 @@ class GFX4d : public Print
     uint16_t GetSliderValue(uint16_t ui, uint8_t axis, uint16_t uiv, uint16_t ming, uint16_t maxg);
     uint16_t SpriteGetPixel(int snum, int xo, int yo, uint16_t tcolor, uint16_t * sdata);
     uint16_t SpriteGetPalette(int pnumber);
-    uint16_t Grad(int raisSunk, int state, int glev, int h1, int pos, uint16_t colToAdj);
+    int      Grad(int raisSunk, int state, int glev, int h1, int pos, int colToAdj);
     int      GetSpritesAt(int xo, int yo, uint16_t tcolor, int * slist, uint16_t * sdata);
     int      SpriteTouched();
     int      GetSprite(int snum, int choice);
@@ -1088,9 +1136,11 @@ class GFX4d : public Print
     uint16_t palette4bit[16] = {BLACK, MAROON, GREEN, OLIVE, NAVY, PURPLE, TEAL, SILVER, GRAY, RED, LIME, YELLOW, BLUE, FUCHSIA, AQUA, WHITE};
 
     virtual  size_t write(uint8_t);
-
+	
+	
   private:
-    String   dat4d;
+
+	String   dat4d;
     String   gci4d;
     uint16_t tdark;
     uint16_t tlight;
@@ -1110,6 +1160,7 @@ class GFX4d : public Print
     boolean  ctrl;
     boolean  ddos;
     boolean  twen;
+	boolean  useDMA; 
     int8_t   fsh;
     int8_t   fsh1;
     int8_t   fsw;
@@ -1120,57 +1171,62 @@ class GFX4d : public Print
     int8_t   _cs, _dc, _rst, _mosi, _miso, _sclk, _disp, _tcs, _sd, _sRes;
     boolean  IPSDisplay = false;
 	boolean  ST7789 = false;
+	boolean  ILI9488 = false;
+	uint16_t GFX4d_TFTWIDTH = 240;
+    uint16_t GFX4d_TFTHEIGHT = 320;
+	uint16_t GFX4d_SCRWIDTH = 239;
+	int 	_xstart;
+	int 	_ystart;
+	int 	_rowstart;
+	int 	_colstart;
+	int 	_nlh = 320;
 
   public:
     uint8_t  dispID[4];
-	int16_t  //lastArcOld[max_ARCSIZE],
-    //inx[max_ARCSIZE],
-    GSCropArcLeft = -1,
-    GSCropArcRight = -1,
-    xpGSaPos[4],
-    ypGSaPos[4],
-    radsGS[4],
-    //GSCropArcLeft := -1,
-    //GSCropArcRight := -1,
-    GSCropLastVal,
-    lastAsize,
-    keepLastArc = 0,
-    protectLA = 0,
-    GSErase,
-    GSEraseXpos,
-    GSEraseYpos,
-    GSEraseHeight,
-    GSErasePHeight,
-    GSEraseColour,
-    GSEraseGLevel,
-    GSERaisedSunk,
-    GSSLastSliderVal,
-    GSSBGColor,
-    GSSArconly,
-    GSSsxpos = -9999;
-    //gradofs;
-    uint16_t lastArcOld[MAX_ARCSIZE],
-             inx[MAX_ARCSIZE];
-    boolean  sdok;
+	int16_t  
+		MAX_WIDGETS = 300,
+		GSCropArcLeft = -1,
+		GSCropArcRight = -1,
+		xpGSaPos[4],
+		ypGSaPos[4],
+		radsGS[4],
+		GSCropLastVal,
+		lastAsize,
+		keepLastArc = 0,
+		protectLA = 0,
+		GSErase,
+		GSEraseXpos,
+		GSEraseYpos,
+		GSEraseHeight,
+		GSErasePHeight,
+		GSEraseColour,
+		GSEraseGLevel,
+		GSERaisedSunk,
+		GSSLastSliderVal,
+		GSSBGColor,
+		GSSArconly,
+		GSSsxpos = -9999;
+    uint16_t 
+		lastArcOld[MAX_ARCSIZE],
+        inx[MAX_ARCSIZE];
+    boolean sdok;
 
   protected:
 
     uint32_t krepeat;
-    uint32_t tuiIndex[MAX_WIDGETS];
+    uint32_t *tuiIndex;
     int16_t
-    tuix[MAX_WIDGETS],
-         tuiy[MAX_WIDGETS],
-         tuiw[MAX_WIDGETS],
-         tuih[MAX_WIDGETS],
+         *tuix,
+         *tuiy,
+         *tuiw,
+         *tuih,
+		 *spriteData,
+         *spriteList,
+         *spriteLast,
+         *spriteNum,
          xpApos[4],
          ypApos[4],
          rads[4],
-
-         //lastArcOld[max_ARCSIZE],
-         //inx[MAX_ARCSIZE],
-         //GSCropArcLeft = -1,
-         //GSCropArcRight = -1,
-         //lastAsize,
          TWimage,
          TWimageCount,
          pressed = -1,
@@ -1179,21 +1235,25 @@ class GFX4d : public Print
          sdetailh,
          sdetailx,
          sdetailw,
-         *spriteData,
-         *spriteList,
-         *spriteLast,
-         *spriteNum,
-         width, height, cursor_x, cursor_y , scrollpos, xic, yic;
+         width, 
+		 height, 
+		 cursor_x, 
+		 cursor_y, 
+		 scrollpos, 
+		 xic, 
+		 yic,
+		 gciobjtouched;
     uint16_t
 #ifndef ESP8266
-    buf16[12001],
+		buf16[12001],
 #endif
-          gciobjframes[MAX_WIDGETS],
+          *gciobjframes,
           twframecol,
           textcolor, textbgcolor,
           chracc, chrdwn,
           TWimgSet = 0,
           TWimageTextCol,
+		  opgfx = 0,
           sgx,
           sgy,
           sgw,
@@ -1206,19 +1266,18 @@ class GFX4d : public Print
           twcurx,
           twcury,
           twcolnum,
-          bposx[128],
-          bposy[128],
-          bposw[128],
-          bposh[128],
-          bposc[128],
-          txfcol[600],
+          *bposx,
+          *bposy,
+          *bposw,
+          *bposh,
+          *bposc,
+          *txfcol,
           spriteArea[4],
           numSprites,
           butdelay,
-          gciobjnum,
-          gciobjtouched;
+          gciobjnum;
     uint8_t
-    cdv[MAX_WIDGETS],
+        *cdv,
         TWcharByte,
         TWcharBit,
         UIDRcharOn,
@@ -1231,10 +1290,9 @@ class GFX4d : public Print
         pencount,
         oldbut,
         twcl,
-        bstat[128],
-        txtbuf[600],
+        *bstat,
+        *txtbuf,
         tchbuf[15],
-        //tdata[256],
         textsize,
         textsizeht,
         rotation,
@@ -1245,24 +1303,25 @@ class GFX4d : public Print
         _but,
         bxStyle;
     boolean
-    saSet,
-    tchen,
-    uimage,
-    twframe,
-    butchnge,
-    dlok,
-    //sdok,
-    gciobjtouchenable[MAX_WIDGETS],
-    scrolled,
-    nl,
-    txtwin,
-    wrap,
-    bactive[128];
-    String
-    cmdtxt,
-    twtext;
+		saSet,
+		tchen,
+		uimage,
+		twframe,
+		butchnge,
+		dlok,
+		*gciobjtouchenable,
+		scrolled,
+		nl,
+		txtwin,
+		ButtonxInitial = true,
+		TWInitial = true,
+		wrap,
+		*bactive;
+	String
+		cmdtxt,
+		twtext;
     long
-    touchTime;
+		touchTime;
 };
 
 #endif
