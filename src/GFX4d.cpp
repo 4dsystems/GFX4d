@@ -2,7 +2,7 @@
 *                                                                          *
 *  4D Systems GFX4d Library                                                *
 *                                                                          *
-*  Date:        13th Nov 2022                                              *
+*  Date:        21/02/2023                                                 *
 *                                                                          *
 *  Description: Provides Graphics, Touch Control and SD Card functions     *
 *               for 4D Systems Gen4 IoD range of intelligent displays.     *
@@ -189,9 +189,9 @@
   #include <FS.h>
   #include <HTTPClient.h>
   #include <WiFiClientSecure.h>
-  #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+  //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
     #include <WiFiClientSecureBearSSL.h>
-  #endif
+  //#endif
 #endif
 
 #define hwSPI true
@@ -205,7 +205,7 @@
 #ifdef USE_FS
   #include "LittleFS.h"
 #else
-  #include <SD.h>
+  #include "SD.h"
 #endif
 
 GFX4d::GFX4d()
@@ -573,7 +573,7 @@ void GFX4d::RoundRectFilled(int16_t x, int16_t y, int16_t x1, int16_t y1, int16_
   int w = x1 - x + 1;
   int h = y1 - y + 1;
   int maxR = 0;
-  if (w > h)
+  if (w >= h)
     maxR = (h - 1) / 2;
   else if (h > w)
     maxR = (w - 1) / 2;
@@ -1339,21 +1339,21 @@ void GFX4d::ImageWifi(boolean local, String Address, uint16_t port, String hfile
     newLine(lastfsh, textsizeht, 0);
   }
   HTTPClient http;
-  #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+  //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
     WiFiClient client;
-  #endif
+  //#endif
   if (local)
   {
     if (sha1 == "")
     {
-      #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+      //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
 	    if (!http.begin(client, Address, port, hfile)) return;
-	  #else
-	    if (!http.begin(Address, port, hfile)) return;
-      #endif
+	  //#else
+	    //if (!http.begin(Address, port, hfile)) return;
+      //#endif
 	} else {
 #ifndef ESP32
-      #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+      //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
 	    std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
 	    if(sha1 == "INSECURE"){
 		  client->setInsecure();
@@ -1361,22 +1361,22 @@ void GFX4d::ImageWifi(boolean local, String Address, uint16_t port, String hfile
 	      client->setFingerprint((char*)sha1.c_str());
 	    }
 		if (!http.begin(*client, Address, port, hfile)) return;
-	  #else
-	    if (!http.begin(Address, port, hfile, sha1)) return;
-	  #endif
+	  //#else
+	  //  if (!http.begin(Address, port, hfile, sha1)) return;
+	  //#endif
 #endif
     }
   } else {
     if (sha1 == "")
     {
-      #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+      //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
 	    if (!http.begin(client, Address)) return;
-	  #else
-	    if (!http.begin(Address)) return;
-	  #endif
+	  //#else
+	    //if (!http.begin(Address)) return;
+	  //#endif
     } else {
 #ifndef ESP32
-    #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac  
+    //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac  
 	  std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
 	  if(sha1 == "INSECURE"){
 		client->setInsecure();
@@ -1384,9 +1384,9 @@ void GFX4d::ImageWifi(boolean local, String Address, uint16_t port, String hfile
 	    client->setFingerprint((char*)sha1.c_str());
 	  }
 	  if (!http.begin(* client, Address)) return;
-	#else
-	  if(!http.begin(Address, sha1)) return;
-	#endif
+	//#else
+	  //if(!http.begin(Address, sha1)) return;
+	//#endif
 #endif
     }
   }
@@ -4250,27 +4250,27 @@ void GFX4d::Download(String Address, uint16_t port, String hfile, String Fname, 
   fs::File Dwnload;
 #endif
   HTTPClient http;
-  #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+  //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
     WiFiClient client;
-  #endif
+  //#endif
   if (port > 0)
   {
-    #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+    //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
 	  http.begin(client, Address, port, hfile);
-	#else
-	  http.begin(Address, port, hfile);
-    #endif
+	//#else
+	//  http.begin(Address, port, hfile);
+    //#endif
   } else {
     if (sha1 == "")
     {
-      #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
+      //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac
 	    http.begin(client, Address);
-	  #else	
-		http.begin(Address);
-	  #endif
+	  //#else	
+		//http.begin(Address);
+	  //#endif
     } else {
 #ifndef ESP32
-      #if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac  
+      //#if ARDUINO_ESP8266_GIT_VER > 0x2843a5ac  
 	  std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
 	  if(sha1 == "INSECURE"){
 		client->setInsecure();
@@ -4278,9 +4278,9 @@ void GFX4d::Download(String Address, uint16_t port, String hfile, String Fname, 
 	    client->setFingerprint((char*)sha1.c_str());
 	  }
 	  if (!http.begin(* client, Address)) return;
-	#else
-	  if(!http.begin(Address, sha1)) return;
-	#endif
+	//#else
+	//  if(!http.begin(Address, sha1)) return;
+	//#endif
 #endif
     }
   }
