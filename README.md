@@ -1,7 +1,6 @@
-![image](http://www.4dsystems.com.au/downloads/4DLogo.png)
+![image](https://github.com/4dsystems/GFX4d/blob/master/logo.jpg)
 
 # GFX4d
-============================================================================
 
 Graphics Library for the gen4-IoD by 4D Systems
 
