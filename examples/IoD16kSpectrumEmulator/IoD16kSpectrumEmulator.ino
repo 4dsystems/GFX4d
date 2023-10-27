@@ -1,7 +1,11 @@
-
 #include "GFX4d.h"
 #include <Arduino.h>
 #include "Emulator.h"
+
+/**
+ * Note: An simple keyboard windows application is provided in the 
+ * 'extras' folder of the library named 'EmulatorKeyboardApp'
+ */
 
 #define ZX_EMU_TAPE     0
 #define ZX_EMU_ROM      1
